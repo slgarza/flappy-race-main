@@ -33,12 +33,15 @@
 void godot_ios_plugins_initialize();
 void godot_ios_plugins_deinitialize();
 // Exported Plugins
+extern void flappy_ads_ios_initialize();
+extern void flappy_ads_ios_deinitialize();
 
 // Use Plugins
 void godot_ios_plugins_initialize() {
+	flappy_ads_ios_initialize();
 }
 
 void godot_ios_plugins_deinitialize() {
+	flappy_ads_ios_deinitialize();
 }
-
 

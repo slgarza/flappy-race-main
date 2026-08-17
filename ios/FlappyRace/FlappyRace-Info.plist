@@ -26,6 +26,8 @@
 	<string></string>
 	<key>CFBundleVersion</key>
 	<string>0.20.1</string>
+	<key>GADApplicationIdentifier</key>
+	<string>ca-app-pub-5520658565266027~2823728558</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false />
 	<key>LSRequiresIPhoneOS</key>
@@ -43,6 +45,13 @@
 	<string></string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string></string>
+	<key>SKAdNetworkItems</key>
+	<array>
+		<dict>
+			<key>SKAdNetworkIdentifier</key>
+			<string>cstr6suwn9.skadnetwork</string>
+		</dict>
+	</array>
 	<key>UIRequiresFullScreen</key>
 	<true/>
 	<key>UIStatusBarHidden</key>
@@ -75,4 +84,3 @@
 	</dict>
 </dict>
 </plist>
-
