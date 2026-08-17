@@ -14,6 +14,7 @@ builds
 *.zip
 godot-playable-ad/build*/
 godot-playable-ad-bare/build*/
+playable-ad*/assets/*.import
 
 # Local/editor state
 .idea/
