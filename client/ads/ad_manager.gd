@@ -4,7 +4,7 @@ signal remove_ads_purchased
 signal remove_ads_purchase_failed
 signal remove_ads_purchase_cancelled
 
-const SHOW_CHANCE := 0.5
+const SHOW_CHANCE := 1.0
 const PLUGIN_NAME := "FlappyAds"
 const SUPPORTED_PLUGIN_PLATFORMS := ["Android", "iOS"]
 const SAVE_PATH := "user://purchases.cfg"
