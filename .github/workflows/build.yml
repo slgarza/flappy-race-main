@@ -1,0 +1,58 @@
+
+name: Build Game
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+     - main
+  workflow_call:
+    inputs:
+      commit_hash:
+        required: false
+        description: Optional commit hash to build
+        type: string
+        default: ${{ github.sha }}
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+env:
+  GODOT_VERSION: 3.6.2
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        platform: [linux, windows, mac, html5]
+    steps:
+      - name: Setup Godot
+        # Download Godot Headless and export templates, version is set from env variables
+        run: |
+          wget https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux_headless.64.zip
+          wget https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_export_templates.tpz
+          mkdir ~/.cache
+          mkdir -p ~/.config/godot
+          mkdir -p ~/.local/share/godot/templates/${GODOT_VERSION}.stable
+          unzip Godot_v${GODOT_VERSION}-stable_linux_headless.64.zip
+          mv Godot_v${GODOT_VERSION}-stable_linux_headless.64 /usr/local/bin/godot
+          unzip Godot_v${GODOT_VERSION}-stable_export_templates.tpz
+          mv templates/* ~/.local/share/godot/templates/${GODOT_VERSION}.stable
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.commit_hash }}
+          fetch-depth: 0
+      - name: Build
+        run: |
+          mkdir -v -p builds/${{ matrix.platform }}
+          godot -v --export-debug ${{ matrix.platform }}
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: FlappyRace-${{ matrix.platform }}-${{ inputs.commit_hash || github.sha }}
+          path: builds/${{ matrix.platform }}
+          if-no-files-found: error

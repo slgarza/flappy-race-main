@@ -1,0 +1,809 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Flappy Race - Arcade Racing on Android</title>
+  <meta name="description" content="Flappy Race is a fast 2D arcade racing game with single player, online multiplayer, bots, items, and mobile-friendly Android controls.">
+  <style>
+    :root {
+      --ink: #172033;
+      --muted: #556173;
+      --paper: #fffdf7;
+      --panel: #ffffff;
+      --sky: #d8f2ff;
+      --line: #d7dfec;
+      --blue: #2067d1;
+      --green: #3f8f55;
+      --red: #cf4b38;
+      --yellow: #f1b53a;
+      --night: #16233a;
+      --shadow: 0 18px 44px rgba(20, 32, 52, 0.14);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .site-header {
+      position: absolute;
+      z-index: 5;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      width: min(1180px, calc(100% - 36px));
+      margin: 0 auto;
+      padding: 24px 0;
+      color: #ffffff;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .brand img {
+      width: 154px;
+      height: auto;
+      image-rendering: auto;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .nav a {
+      text-decoration: none;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+    }
+
+    .hero {
+      position: relative;
+      min-height: 86svh;
+      display: grid;
+      align-items: center;
+      overflow: hidden;
+      color: #ffffff;
+      background-color: #8fd7f1;
+      background-image: url("/hero-background.png");
+      background-size: cover;
+      background-position: center;
+      isolation: isolate;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background: rgba(11, 25, 45, 0.44);
+    }
+
+    .cloud {
+      position: absolute;
+      z-index: -1;
+      left: 0;
+      width: 200%;
+      height: 34%;
+      background-repeat: repeat-x;
+      background-size: auto 100%;
+      opacity: 0.74;
+      pointer-events: none;
+      animation: drift 48s linear infinite;
+    }
+
+    .cloud.one {
+      top: 14%;
+      background-image: url("/cloud-layer-1.png");
+    }
+
+    .cloud.two {
+      top: 30%;
+      background-image: url("/cloud-layer-2.png");
+      opacity: 0.55;
+      animation-duration: 68s;
+    }
+
+    @keyframes drift {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    .hero-inner {
+      width: min(1180px, calc(100% - 36px));
+      margin: 0 auto;
+      padding: 112px 0 82px;
+    }
+
+    .hero-logo {
+      width: clamp(220px, 28vw, 360px);
+      margin-bottom: 24px;
+      filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.32));
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 900px;
+      font-size: clamp(3rem, 8vw, 6.7rem);
+      line-height: 0.96;
+      letter-spacing: 0;
+      text-shadow: 0 6px 18px rgba(0, 0, 0, 0.32);
+    }
+
+    .hero-copy {
+      max-width: 660px;
+      margin: 24px 0 0;
+      font-size: clamp(1.1rem, 2vw, 1.35rem);
+      color: #f6fbff;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.42);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 32px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 52px;
+      padding: 0 22px;
+      border: 2px solid #ffffff;
+      border-radius: 8px;
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: 800;
+      background: rgba(0, 0, 0, 0.18);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+    }
+
+    .button.primary {
+      border-color: var(--yellow);
+      background: var(--yellow);
+      color: #1b2231;
+      text-shadow: none;
+    }
+
+    .strip {
+      background: var(--paper);
+    }
+
+    .section {
+      width: min(1180px, calc(100% - 36px));
+      margin: 0 auto;
+      padding: 72px 0;
+    }
+
+    .section-header {
+      max-width: 760px;
+      margin-bottom: 32px;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--blue);
+      font-size: 0.86rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(2rem, 4.5vw, 4rem);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      margin: 16px 0 0;
+      color: var(--muted);
+      font-size: 1.08rem;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .feature {
+      min-height: 216px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: 0 10px 26px rgba(20, 32, 52, 0.07);
+    }
+
+    .feature img {
+      width: 56px;
+      height: 56px;
+      object-fit: contain;
+      margin-bottom: 20px;
+    }
+
+    .feature h3 {
+      margin: 0 0 10px;
+      font-size: 1.15rem;
+    }
+
+    .feature p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .gameplay-band {
+      background: var(--sky);
+      border-block: 1px solid #c4deed;
+    }
+
+    .gameplay-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(320px, 0.86fr);
+      gap: 42px;
+      align-items: center;
+    }
+
+    .race-scene {
+      position: relative;
+      min-height: 420px;
+      overflow: hidden;
+      border: 1px solid #b9d7e7;
+      border-radius: 8px;
+      background-color: #aee4f6;
+      background-image:
+        url("/cloud-layer-b1.png"),
+        url("/hills-large.png"),
+        url("/ground-layer-2.png");
+      background-size: 900px auto, 900px auto, 900px auto;
+      background-repeat: repeat-x;
+      background-position: 0 24px, 0 120px, 0 318px;
+      box-shadow: var(--shadow);
+    }
+
+    .race-scene::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 74px;
+      background: #588f51;
+      border-top: 6px solid #2d6d3d;
+    }
+
+    .lane {
+      position: absolute;
+      left: 5%;
+      right: 5%;
+      top: 42%;
+      height: 7px;
+      background: rgba(255, 255, 255, 0.72);
+      border-radius: 999px;
+    }
+
+    .flyer {
+      position: absolute;
+      left: 12%;
+      top: 36%;
+      width: 74px;
+      height: 74px;
+      border: 5px solid #2d2f34;
+      border-radius: 50%;
+      background: #ffffff;
+      box-shadow: 0 10px 0 rgba(0, 0, 0, 0.12);
+      animation: flap 1.8s ease-in-out infinite;
+    }
+
+    .flyer::before,
+    .flyer::after {
+      content: "";
+      position: absolute;
+      top: 30px;
+      width: 26px;
+      height: 16px;
+      border-radius: 50%;
+      background: #2d2f34;
+    }
+
+    .flyer::before {
+      left: 14px;
+    }
+
+    .flyer::after {
+      right: 14px;
+    }
+
+    .wing {
+      position: absolute;
+      left: -22px;
+      top: 28px;
+      width: 38px;
+      height: 28px;
+      border-radius: 60% 12px 60% 12px;
+      background: #f2f4f7;
+      border: 4px solid #2d2f34;
+      transform: rotate(-24deg);
+    }
+
+    @keyframes flap {
+      0%, 100% { transform: translateY(0) rotate(-3deg); }
+      50% { transform: translateY(-18px) rotate(4deg); }
+    }
+
+    .wall {
+      position: absolute;
+      top: 18%;
+      right: 22%;
+      width: 72px;
+      height: 220px;
+      background-image: url("/wall-tile.png");
+      background-size: 72px 72px;
+      border-radius: 8px;
+      box-shadow: 0 12px 0 rgba(0, 0, 0, 0.12);
+    }
+
+    .pickup {
+      position: absolute;
+      right: 44%;
+      top: 52%;
+      width: 72px;
+      animation: bob 1.6s ease-in-out infinite;
+    }
+
+    .finish {
+      position: absolute;
+      right: 8%;
+      bottom: 72px;
+      width: 58px;
+      height: 230px;
+      background-image: url("/finish-line.png");
+      background-size: 58px 58px;
+      border-radius: 8px 8px 0 0;
+      box-shadow: 0 12px 0 rgba(0, 0, 0, 0.12);
+    }
+
+    @keyframes bob {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 24px;
+    }
+
+    .stat {
+      padding: 18px;
+      border-radius: 8px;
+      background: #ffffff;
+      border: 1px solid #c4deed;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.5rem;
+      line-height: 1.1;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .items {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(70px, 1fr));
+      gap: 12px;
+      margin-top: 30px;
+    }
+
+    .item {
+      display: grid;
+      place-items: center;
+      min-height: 112px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: #ffffff;
+      box-shadow: 0 8px 22px rgba(20, 32, 52, 0.07);
+    }
+
+    .item img {
+      width: 62px;
+      height: 62px;
+      object-fit: contain;
+    }
+
+    .split-band {
+      background: #f3f7ee;
+      border-top: 1px solid #d7e2ce;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 0.88fr 1.12fr;
+      gap: 40px;
+      align-items: start;
+    }
+
+    .bullet-list {
+      margin: 24px 0 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 14px;
+    }
+
+    .bullet-list li {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 16px;
+      border: 1px solid #d7e2ce;
+      border-radius: 8px;
+      background: #ffffff;
+    }
+
+    .bullet-list img {
+      width: 34px;
+      height: 34px;
+      object-fit: contain;
+      flex: 0 0 auto;
+    }
+
+    .credits-band {
+      background: var(--night);
+      color: #ffffff;
+    }
+
+    .credits-band .lead,
+    .credits-band .eyebrow {
+      color: #dbe8ff;
+    }
+
+    .credits-line {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .pill {
+      padding: 10px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      border-radius: 999px;
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .site-footer {
+      width: min(1180px, calc(100% - 36px));
+      margin: 0 auto;
+      padding: 28px 0 42px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .site-footer a {
+      color: var(--blue);
+      font-weight: 700;
+    }
+
+    @media (max-width: 900px) {
+      .site-header {
+        align-items: flex-start;
+      }
+
+      .nav {
+        gap: 12px;
+        font-size: 0.9rem;
+      }
+
+      .feature-grid,
+      .gameplay-layout,
+      .split {
+        grid-template-columns: 1fr;
+      }
+
+      .feature-grid {
+        gap: 12px;
+      }
+
+      .items {
+        grid-template-columns: repeat(4, minmax(70px, 1fr));
+      }
+    }
+
+    @media (max-width: 620px) {
+      .site-header {
+        position: absolute;
+        width: calc(100% - 28px);
+        padding-top: 18px;
+      }
+
+      .brand img {
+        width: 130px;
+      }
+
+      .nav {
+        display: none;
+      }
+
+      .hero {
+        min-height: 88svh;
+      }
+
+      .hero-inner {
+        width: calc(100% - 28px);
+        padding-top: 96px;
+      }
+
+      .actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .button {
+        width: 100%;
+      }
+
+      .section {
+        width: calc(100% - 28px);
+        padding: 54px 0;
+      }
+
+      .race-scene {
+        min-height: 330px;
+        background-size: 700px auto, 720px auto, 720px auto;
+        background-position: 0 22px, 0 104px, 0 248px;
+      }
+
+      .wall {
+        right: 18%;
+        height: 170px;
+      }
+
+      .finish {
+        height: 184px;
+      }
+
+      .stat-row {
+        grid-template-columns: 1fr;
+      }
+
+      .items {
+        grid-template-columns: repeat(3, minmax(70px, 1fr));
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      .cloud,
+      .flyer,
+      .pickup {
+        animation: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header" aria-label="Site navigation">
+    <a class="brand" href="#top" aria-label="Flappy Race home">
+      <img src="/flappy-race-logo.png" alt="Flappy Race">
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a href="#features">Features</a>
+      <a href="#gameplay">Gameplay</a>
+      <a href="#multiplayer">Multiplayer</a>
+      <a href="/privacy-policy.html">Privacy</a>
+    </nav>
+  </header>
+
+  <section class="hero" id="top">
+    <div class="cloud one" aria-hidden="true"></div>
+    <div class="cloud two" aria-hidden="true"></div>
+    <div class="hero-inner">
+      <img class="hero-logo" src="/flappy-race-logo.png" alt="Flappy Race logo">
+      <h1>Flappy Race</h1>
+      <p class="hero-copy">
+        A fast 2D arcade racing game where every flap matters. Race solo, challenge bots, or jump online for quick
+        multiplayer chaos with items, hazards, and photo-finish leaderboards.
+      </p>
+      <div class="actions">
+        <a class="button primary" href="#features">Explore Features</a>
+        <a class="button" href="#gameplay">See Gameplay</a>
+      </div>
+    </div>
+  </section>
+
+  <main>
+    <section class="strip" id="features">
+      <div class="section">
+        <div class="section-header">
+          <p class="eyebrow">Features</p>
+          <h2>Built for short, wild races</h2>
+          <p class="lead">
+            Flappy Race turns simple tap-to-flap movement into a competitive sprint through obstacles, items, and
+            constantly shifting positions.
+          </p>
+        </div>
+
+        <div class="feature-grid">
+          <article class="feature">
+            <img src="/control-space-key.png" alt="">
+            <h3>Simple Controls</h3>
+            <p>Tap to flap, dodge walls, hold your line, and fight gravity all the way to the finish.</p>
+          </article>
+          <article class="feature">
+            <img src="/multiplayer-robot.png" alt="">
+            <h3>Bots Included</h3>
+            <p>Play solo with AI racers when you want a fast match without waiting for other players.</p>
+          </article>
+          <article class="feature">
+            <img src="/item-box.png" alt="">
+            <h3>Items and Power-Ups</h3>
+            <p>Grab item boxes and use boosts, lasers, magnets, berries, and other tools to swing the race.</p>
+          </article>
+          <article class="feature">
+            <img src="/progress-circle.png" alt="">
+            <h3>Race Progress</h3>
+            <p>Track where everyone is in real time and push through the final stretch before the leaderboard lands.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="gameplay-band" id="gameplay">
+      <div class="section gameplay-layout">
+        <div class="race-scene" aria-label="Stylized Flappy Race gameplay scene">
+          <div class="lane" aria-hidden="true"></div>
+          <div class="flyer" aria-hidden="true"><span class="wing"></span></div>
+          <img class="pickup" src="/item-box.png" alt="">
+          <div class="wall" aria-hidden="true"></div>
+          <div class="finish" aria-hidden="true"></div>
+        </div>
+
+        <div>
+          <p class="eyebrow">Gameplay</p>
+          <h2>One button, a lot of pressure</h2>
+          <p class="lead">
+            Timing is everything. Dip too low and the floor gets you. Climb too high and the next wall becomes a problem.
+            Items keep every race noisy, risky, and winnable until the finish line.
+          </p>
+          <div class="stat-row" aria-label="Gameplay highlights">
+            <div class="stat">
+              <strong>2D</strong>
+              <span>Arcade racing</span>
+            </div>
+            <div class="stat">
+              <strong>Fast</strong>
+              <span>Short sessions</span>
+            </div>
+            <div class="stat">
+              <strong>Online</strong>
+              <span>Multiplayer ready</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="strip">
+      <div class="section">
+        <div class="section-header">
+          <p class="eyebrow">Items</p>
+          <h2>Comebacks are part of the race</h2>
+          <p class="lead">
+            Item boxes can change the pace fast. Build momentum, protect a lead, or claw back from the back of the pack.
+          </p>
+        </div>
+        <div class="items" aria-label="Item icons">
+          <div class="item"><img src="/item-boost.png" alt="Boost item"></div>
+          <div class="item"><img src="/item-laser.png" alt="Laser item"></div>
+          <div class="item"><img src="/item-magnet.png" alt="Magnet item"></div>
+          <div class="item"><img src="/item-picoberry.png" alt="Picoberry item"></div>
+          <div class="item"><img src="/item-invisiberry.png" alt="Invisiberry item"></div>
+          <div class="item"><img src="/item-flomb.png" alt="Flomb item"></div>
+          <div class="item"><img src="/item-gem.png" alt="Gem item"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="split-band" id="multiplayer">
+      <div class="section split">
+        <div>
+          <p class="eyebrow">Multiplayer</p>
+          <h2>Race friends or public lobbies</h2>
+          <p class="lead">
+            Create a room, join with a code, ready up, and race. Online matches return to setup between rounds, so players
+            can change options, colors, items, and bots before starting again.
+          </p>
+        </div>
+        <ul class="bullet-list">
+          <li>
+            <img src="/icon-confirmed.png" alt="">
+            <span><strong>Ready up system.</strong> Players confirm when they are ready so each race starts cleanly.</span>
+          </li>
+          <li>
+            <img src="/icon-crown.png" alt="">
+            <span><strong>Host controls.</strong> Hosts can adjust race settings and start games when everyone is ready.</span>
+          </li>
+          <li>
+            <img src="/icon-spectator.png" alt="">
+            <span><strong>Spectator support.</strong> Join late or watch a race without blocking the current match.</span>
+          </li>
+          <li>
+            <img src="/multiplayer-robot.png" alt="">
+            <span><strong>Bot racers.</strong> Fill out races with AI players for more pressure and movement.</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="credits-band">
+      <div class="section">
+        <p class="eyebrow">Android Port</p>
+        <h2>Published by SLG Developer</h2>
+        <p class="lead">
+          Flappy Race for Android brings the open-source flappy racing experience to mobile with Android controls,
+          pause support, AdMob interstitial ads, credits, and platform-specific polish.
+        </p>
+        <div class="credits-line">
+          <a class="pill" href="/privacy-policy.html">Privacy Policy</a>
+          <a class="pill" href="mailto:support@slgdeveloper.com">Contact Support</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>
+      Flappy Race Android port and publishing by SLG Developer. Original game by Jibby Games. See the in-game credits
+      for full attribution and license details.
+    </p>
+  </footer>
+</body>
+</html>

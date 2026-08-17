@@ -1,0 +1,44 @@
+# Godot-specific ignores
+.import/
+export.cfg
+
+# Imported translations (automatically generated from CSV files)
+*.translation
+
+# Mono-specific ignores
+.mono/
+data_*/
+
+# Exported builds
+builds
+*.zip
+godot-playable-ad/build*/
+godot-playable-ad-bare/build*/
+
+# Local/editor state
+.idea/
+.vscode/
+
+# Android generated output and signing material
+android/build/.gradle/
+android/build/.idea/
+android/build/build/
+android/build/**/build/
+android/build/assetPackInstallTime/build/
+android/build/release/
+android/build/local.properties
+android/build/assets/
+android/build/libs/
+android/unused-generated-signing-*/
+*.apk
+*.aab
+*.apks
+*.jks
+*.keystore
+*.credentials
+*.pem
+
+# iOS export output
+*.ipa
+*.xcarchive
+DerivedData/

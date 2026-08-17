@@ -1,0 +1,82 @@
+
+name: Draft Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        required: true
+        description: The tag to release (e.g. 1.2.3)
+        type: string
+        default: 0.0.0
+
+jobs:
+  update_version:
+    runs-on: ubuntu-latest
+    outputs:
+      commit_hash: ${{ steps.commit.outputs.commit_hash }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Update project and export versions
+        run: |
+          sed -i "s/config\/version=.*/config\/version=\"v${{ github.event.inputs.tag }}\"/g" project.godot
+          sed -i "s/=\"[0-9]\.[0-9]\.[0-9]\"/\"${{ github.event.inputs.tag }}\"/g" export_presets.cfg
+      - name: Update Changelog
+        uses: thomaseizinger/keep-a-changelog-new-release@3.1.0
+        with:
+          tag: ${{ github.event.inputs.tag }}
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v7
+        id: commit
+        with:
+          commit_message: "Update version to ${{ github.event.inputs.tag }}"
+          file_pattern: project.godot export_presets.cfg CHANGELOG.md
+  build:
+    uses: Jibby-Games/Flappy-Race/.github/workflows/build.yml@main
+    needs: update_version
+    with:
+      commit_hash: ${{ needs.update_version.outputs.commit_hash }}
+  draft_release:
+    runs-on: ubuntu-latest
+    needs: [update_version, build]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.update_version.outputs.commit_hash }}
+      - name: Download Windows Build
+        uses: actions/download-artifact@v8
+        with:
+          name: FlappyRace-windows-${{ needs.update_version.outputs.commit_hash }}
+          path: builds
+          skip-decompress: true
+      - name: Download Mac Build
+        uses: actions/download-artifact@v8
+        with:
+          name: FlappyRace-mac-${{ needs.update_version.outputs.commit_hash }}
+          path: builds
+          skip-decompress: true
+      - name: Download Linux Build
+        uses: actions/download-artifact@v8
+        with:
+          name: FlappyRace-linux-${{ needs.update_version.outputs.commit_hash }}
+          path: builds
+          skip-decompress: true
+      - name: Rename Artifacts
+        run: |
+          mv builds/FlappyRace-windows-${{ needs.update_version.outputs.commit_hash }}.zip builds/FlappyRace-${{ github.event.inputs.tag }}-Windows.zip
+          mv builds/FlappyRace-mac-${{ needs.update_version.outputs.commit_hash }}.zip builds/FlappyRace-${{ github.event.inputs.tag }}-Mac.zip
+          mv builds/FlappyRace-linux-${{ needs.update_version.outputs.commit_hash }}.zip builds/FlappyRace-${{ github.event.inputs.tag }}-Linux.zip
+      - name: Extract Release Notes
+        uses: ffurrer2/extract-release-notes@v3
+        id: extract-release-notes
+      - name: Draft GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.events.inputs.tag }}
+          name: Flappy Race v${{ github.event.inputs.tag }}
+          body: ${{ steps.extract-release-notes.outputs.release_notes }}
+          draft: true
+          files: |
+            builds/FlappyRace-*-*.zip

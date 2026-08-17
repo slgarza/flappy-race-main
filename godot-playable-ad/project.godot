@@ -1,0 +1,31 @@
+; Engine configuration file.
+; Keep this playable as an isolated Godot 3 project so the ad export does not
+; inherit the full game's autoloads, music, fonts, or multiplayer code.
+
+config_version=4
+
+[application]
+
+config/name="Flappy Kart Playable Ad"
+run/main_scene="res://Main.tscn"
+boot_splash/show_image=false
+boot_splash/bg_color=Color( 0.333333, 0.721569, 0.909804, 1 )
+config/icon="res://assets/player.png"
+
+[display]
+
+window/size/width=360
+window/size/height=640
+window/dpi/allow_hidpi=true
+window/handheld/orientation="portrait"
+window/stretch/mode="2d"
+window/stretch/aspect="expand"
+
+[input_devices]
+
+pointing/emulate_touch_from_mouse=true
+
+[rendering]
+
+quality/driver/driver_name="GLES2"
+environment/default_clear_color=Color( 0.333333, 0.721569, 0.909804, 1 )
