@@ -4,6 +4,7 @@ const DISPLAY_FONT_DATA := preload("res://client/fonts/DelaGothicOne-Regular.ttf
 const BODY_FONT_DATA := preload("res://client/fonts/Roboto-Regular.ttf")
 
 const SAFE_MARGIN := 56
+const IOS_SAFE_MARGIN := 92
 const BUTTON_HEIGHT := 112
 const PRIMARY_BUTTON_HEIGHT := 124
 const INPUT_HEIGHT := 104
@@ -23,9 +24,13 @@ var _spinbox_blank_texture: ImageTexture = null
 
 
 func is_mobile() -> bool:
-	if OS.get_name() == "Android":
+	if OS.get_name() == "Android" or OS.get_name() == "iOS":
 		return true
 	return OS.get_cmdline_args().has("--mobile-ui")
+
+
+func is_ios() -> bool:
+	return OS.get_name() == "iOS"
 
 
 func adapt_title_screen(root) -> void:
@@ -261,6 +266,7 @@ func adapt_credits(root) -> void:
 func adapt_setup(root) -> void:
 	if not is_mobile():
 		return
+	var safe_margin := _safe_margin()
 	_adapt_text_tree(root, 34, 42, HEADER_FONT_SIZE)
 	_adapt_title_label(_node(root, "Title"))
 	_adapt_back_button(_node(root, "BackButton"))
@@ -280,7 +286,8 @@ func adapt_setup(root) -> void:
 	_adapt_colour_selector(colour_selector)
 	var player_list = _node(root, "PlayerList")
 	if player_list:
-		player_list.margin_left = -650
+		player_list.margin_left = -650 - safe_margin
+		player_list.margin_right = -safe_margin
 		player_list.rect_min_size = Vector2(630, 0)
 		player_list.add_constant_override("separation", 8)
 		for entry in player_list.get_children():
@@ -351,9 +358,10 @@ func _adapt_game_id_info(root) -> void:
 func adapt_game_options(root) -> void:
 	if not is_mobile():
 		return
-	root.margin_left = 36
+	var safe_margin := _safe_margin()
+	root.margin_left = safe_margin
 	root.margin_top = -330
-	root.margin_right = 706
+	root.margin_right = safe_margin + 670
 	root.margin_bottom = 374
 	root.rect_min_size = Vector2(670, 750)
 	var header = _node(root, "Header")
@@ -429,37 +437,42 @@ func adapt_pause_menu(panel) -> void:
 func adapt_hud(ui) -> void:
 	if not is_mobile():
 		return
+	var safe_margin := _safe_margin()
 	var score = _node(ui, "Ingame/Player/Score")
 	_apply_label_style(score, 60, false, true)
 	if score:
-		_center_top_rect(score, 320, 70, 18)
+		_center_top_rect(score, 320, 70, max(18, safe_margin / 2))
 	var stopwatch = _node(ui, "Ingame/Stopwatch")
 	_apply_label_style(stopwatch, 42, false)
 	if stopwatch:
-		stopwatch.margin_left = -292
-		stopwatch.margin_top = 24
-		stopwatch.margin_right = -40
-		stopwatch.margin_bottom = 82
+		stopwatch.margin_left = -292 - safe_margin
+		stopwatch.margin_top = safe_margin
+		stopwatch.margin_right = -safe_margin
+		stopwatch.margin_bottom = safe_margin + 58
 		stopwatch.rect_min_size = Vector2(252, 0)
 	var race_progress = _node(ui, "Ingame/RaceProgress")
 	if race_progress:
-		_center_top_rect(race_progress, 940, 64, 136)
+		_center_top_rect(race_progress, 940, 64, safe_margin + 112)
 	_apply_label_style(_node(ui, "Ingame/RaceProgress/ActiveProgress"), 44, false, true)
 	var pause_button = _node(ui, "Ingame/PauseButton")
 	if pause_button:
-		_top_left_rect(pause_button, 240, 92, 24, 24)
+		_top_left_rect(pause_button, 240, 92, safe_margin, safe_margin)
 		_apply_button_style(pause_button, 92, 34, 240)
 	_apply_label_style(_node(ui, "Ingame/Player/Lives/LifeBar/ExtraLives"), 38, false)
 	var lives = _node(ui, "Ingame/Player/Lives")
 	if lives:
-		lives.margin_top = -178
+		lives.margin_left = safe_margin
+		lives.margin_top = -178 - safe_margin
+		lives.margin_bottom = -safe_margin
 	var life_bar = _node(ui, "Ingame/Player/Lives/LifeBar")
 	if life_bar:
 		life_bar.add_constant_override("separation", 6)
 	var coins = _node(ui, "Ingame/Player/Coins")
 	if coins:
-		coins.margin_left = -352
-		coins.margin_top = -164
+		coins.margin_left = -352 - safe_margin
+		coins.margin_top = -164 - safe_margin
+		coins.margin_right = -safe_margin
+		coins.margin_bottom = -safe_margin
 	_apply_label_style(_node(ui, "Ingame/Player/Coins/HBoxContainer/Coins"), 54, false, true)
 	_apply_label_style(_node(ui, "Ingame/Player/Coins/CoinUpdate"), 54, false, true)
 	var spectator_box = _node(ui, "Ingame/Spectator/CenterContainer/HBoxContainer")
@@ -785,6 +798,10 @@ func _node(root, path: String):
 	return root.get_node(path) if root.has_node(path) else null
 
 
+func _safe_margin() -> int:
+	return IOS_SAFE_MARGIN if is_ios() else SAFE_MARGIN
+
+
 func _fill_parent(control) -> void:
 	control.anchor_left = 0
 	control.anchor_top = 0
@@ -843,24 +860,26 @@ func _top_left_rect(control, width: int, height: int, left: int, top: int) -> vo
 
 
 func _bottom_left_rect(control, width: int, height: int) -> void:
+	var safe_margin := _safe_margin()
 	control.anchor_left = 0
 	control.anchor_top = 1
 	control.anchor_right = 0
 	control.anchor_bottom = 1
-	control.margin_left = 0
-	control.margin_top = -height
-	control.margin_right = width
-	control.margin_bottom = 0
+	control.margin_left = safe_margin
+	control.margin_top = -height - safe_margin
+	control.margin_right = width + safe_margin
+	control.margin_bottom = -safe_margin
 	control.rect_min_size = Vector2(width, height)
 
 
 func _bottom_center_rect(control, width: int, height: int) -> void:
+	var safe_margin := _safe_margin()
 	control.anchor_left = 0.5
 	control.anchor_top = 1
 	control.anchor_right = 0.5
 	control.anchor_bottom = 1
 	control.margin_left = -width / 2
-	control.margin_top = -height
+	control.margin_top = -height - safe_margin
 	control.margin_right = width / 2
-	control.margin_bottom = 0
+	control.margin_bottom = -safe_margin
 	control.rect_min_size = Vector2(width, height)

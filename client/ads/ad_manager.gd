@@ -6,6 +6,7 @@ signal remove_ads_purchase_cancelled
 
 const SHOW_CHANCE := 0.5
 const PLUGIN_NAME := "FlappyAds"
+const SUPPORTED_PLUGIN_PLATFORMS := ["Android", "iOS"]
 const SAVE_PATH := "user://purchases.cfg"
 const PURCHASE_SECTION := "purchases"
 const REMOVE_ADS_KEY := "remove_ads"
@@ -23,7 +24,7 @@ func _ready() -> void:
 	pause_mode = Node.PAUSE_MODE_PROCESS
 	_ads_removed = _load_remove_ads_purchase()
 	_rng.randomize()
-	_connect_android_plugin()
+	_connect_ads_plugin()
 
 
 func run_after_maybe_interstitial(target: Object, method: String, args: Array = []) -> void:
@@ -56,7 +57,7 @@ func are_ads_removed() -> bool:
 
 
 func is_remove_ads_available() -> bool:
-	return OS.get_name() == "Android" and _plugin != null
+	return _plugin != null and _plugin.has_method("purchase_remove_ads")
 
 
 func purchase_remove_ads() -> void:
@@ -65,37 +66,38 @@ func purchase_remove_ads() -> void:
 		emit_signal("remove_ads_purchased")
 		return
 	if not is_remove_ads_available():
-		print("FlappyAds: Remove Ads is not available. Android=%s, plugin=%s" % [OS.get_name(), _plugin])
+		print("FlappyAds: Remove Ads is not available. OS=%s, plugin=%s" % [OS.get_name(), _plugin])
 		emit_signal("remove_ads_purchase_failed")
 		return
-	print("FlappyAds: Calling Android purchase_remove_ads.")
+	print("FlappyAds: Calling purchase_remove_ads.")
 	_plugin.purchase_remove_ads()
 
 
 func restore_purchases() -> void:
-	if is_remove_ads_available():
+	if _plugin != null and _plugin.has_method("restore_purchases"):
 		_plugin.restore_purchases()
 
 
-func _connect_android_plugin() -> void:
-	if OS.get_name() != "Android":
+func _connect_ads_plugin() -> void:
+	if not SUPPORTED_PLUGIN_PLATFORMS.has(OS.get_name()):
 		return
 	if not Engine.has_singleton(PLUGIN_NAME):
-		print("FlappyAds: Android plugin not registered.")
+		print("FlappyAds: %s plugin not registered." % OS.get_name())
 		return
 
 	_plugin = Engine.get_singleton(PLUGIN_NAME)
-	print("FlappyAds: Android plugin registered.")
+	print("FlappyAds: %s plugin registered." % OS.get_name())
 	if _plugin.has_method("get_method_list"):
-		print("FlappyAds: Android plugin methods = %s" % [_plugin.get_method_list()])
+		print("FlappyAds: plugin methods = %s" % [_plugin.get_method_list()])
 	_connect_plugin_signal("interstitial_closed", "_on_interstitial_finished")
 	_connect_plugin_signal("interstitial_failed", "_on_interstitial_finished")
 	_connect_plugin_signal("remove_ads_purchased", "_on_remove_ads_purchased")
 	_connect_plugin_signal("remove_ads_purchase_failed", "_on_remove_ads_purchase_failed")
 	_connect_plugin_signal("remove_ads_purchase_cancelled", "_on_remove_ads_purchase_cancelled")
 
-	_plugin.initialize()
-	_plugin.restore_purchases()
+	if _plugin.has_method("initialize"):
+		_plugin.initialize()
+	restore_purchases()
 
 
 func _connect_plugin_signal(signal_name: String, method_name: String) -> void:
@@ -108,9 +110,12 @@ func _should_show_interstitial() -> bool:
 		return false
 	if _plugin == null:
 		return false
+	if not _plugin.has_method("isInterstitialReady") or not _plugin.has_method("showInterstitial"):
+		return false
 	if not _plugin.isInterstitialReady():
 		print("FlappyAds: Interstitial is not ready yet.")
-		_plugin.loadInterstitial()
+		if _plugin.has_method("loadInterstitial"):
+			_plugin.loadInterstitial()
 		return false
 	var should_show := _rng.randf() < SHOW_CHANCE
 	print("FlappyAds: Interstitial chance result = %s." % should_show)
