@@ -19,6 +19,8 @@ playable-ad*/assets/*.import
 # Local/editor state
 .idea/
 .vscode/
+.DS_Store
+xcuserdata/
 
 # Android generated output and signing material
 android/build/.gradle/
