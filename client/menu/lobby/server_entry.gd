@@ -19,17 +19,19 @@ func setup(server_info: Dictionary) -> void:
 
 
 func _on_JoinButton_pressed() -> void:
+	var version_override := Network.get_official_server_version() if official else ""
 	if not game_id.empty():
 		var url := Network.get_game_url(game_id)
-		Network.Client.start_client(url)
+		Network.Client.start_client(url, -1, false, Network.get_official_server_version())
 	else:
 		var url: String
 		if official or is_official_server_ip(ip):
 			url = Network.SERVER_DOMAIN_URL
+			version_override = Network.get_official_server_version()
 		else:
 			var protocol := "wss" if tls else "ws"
 			url = "%s://%s" % [protocol, ip]
-		Network.Client.start_client(url, port)
+		Network.Client.start_client(url, port, false, version_override)
 
 
 func is_official_server_ip(ip_addr: String) -> bool:

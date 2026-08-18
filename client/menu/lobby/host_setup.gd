@@ -11,6 +11,7 @@ const MAX_CONNECT_ATTEMPTS := 3
 var _connect_attempts := 0
 var _retry_url := ""
 var _retry_port := -1
+var _retry_version_override := ""
 
 onready var error_message = $VBoxContainer/Menu/ErrorMessage
 onready var info_message = $VBoxContainer/Menu/InfoMessage
@@ -39,7 +40,7 @@ func _on_connected() -> void:
 
 func _on_connection_failed() -> void:
 	if _connect_attempts < MAX_CONNECT_ATTEMPTS:
-		try_connect_to_server(_retry_url, _retry_port)
+		try_connect_to_server(_retry_url, _retry_port, _retry_version_override)
 	else:
 		show_error("Failed to connect to official server after %d attempts!" % MAX_CONNECT_ATTEMPTS)
 
@@ -79,7 +80,7 @@ func _on_CreateButton_pressed() -> void:
 	var data = {
 		"name": server_name_input.text,
 		"list": use_server_list,
-		"version": ProjectSettings.get_setting("application/config/version").trim_prefix("v")
+		"version": Network.get_official_server_request_version()
 	}
 	# Add 'Content-Type' header:
 	var headers = ["Content-Type: application/json"]
@@ -132,16 +133,21 @@ func _on_HTTPCreate_request_completed(
 		return
 
 
-func try_connect_to_server(server_url: String, port: int = -1) -> void:
+func try_connect_to_server(
+	server_url: String, port: int = -1, version_override: String = ""
+) -> void:
+	if version_override.empty():
+		version_override = Network.get_official_server_version()
 	_connect_attempts += 1
 	_retry_url = server_url
 	_retry_port = port
+	_retry_version_override = version_override
 	var wait_time := pow(2, _connect_attempts - 1)
 	show_info("Server created, connecting... (attempt %d/%d)" % [_connect_attempts, MAX_CONNECT_ATTEMPTS])
 	Logger.print(self, "Waiting %d seconds before trying to connect to server at %s:%d", [wait_time, server_url, port])
 	yield(get_tree().create_timer(wait_time), "timeout")
 	$ConnectionTimer.start(MAX_CONNECT_TIME)
-	Network.Client.start_client(server_url, port)
+	Network.Client.start_client(server_url, port, false, version_override)
 
 
 func _on_ServerListToggle_toggled(button_pressed: bool) -> void:

@@ -2,6 +2,7 @@ extends Node
 
 const CLIENT_NETWORK = "res://client/client_network.tscn"
 const SERVER_NETWORK = "res://server/server_network.tscn"
+const IOS_OFFICIAL_SERVER_VERSION := "v0.14.2"
 
 var Client: ClientNetwork
 var Server: ServerNetwork
@@ -50,6 +51,20 @@ func start_client(host: String, port: int) -> void:
 		yield(get_tree(), "idle_frame")
 	Network.Client.change_scene_to_lobby()
 	Network.Client.start_client(host, port)
+
+
+func get_game_version() -> String:
+	return ProjectSettings.get_setting("application/config/version")
+
+
+func get_official_server_version() -> String:
+	if OS.get_name() == "iOS":
+		return IOS_OFFICIAL_SERVER_VERSION
+	return get_game_version()
+
+
+func get_official_server_request_version() -> String:
+	return get_official_server_version().trim_prefix("v")
 
 
 func start_singleplayer() -> void:

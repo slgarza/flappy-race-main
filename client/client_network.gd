@@ -25,6 +25,7 @@ var player_list := {}
 var game_options := {}
 var game_id := ""
 var late_joined := false
+var server_version_override := ""
 
 signal host_changed(old_host_id, new_host_id)
 signal player_list_changed(old_player_list, new_player_list)
@@ -88,8 +89,11 @@ func change_scene_to_world() -> void:
 	change_scene(world_scene)
 
 
-func start_client(host: String, port: int = -1, singleplayer: bool = false) -> void:
+func start_client(
+	host: String, port: int = -1, singleplayer: bool = false, version_override: String = ""
+) -> void:
 	is_singleplayer = singleplayer
+	server_version_override = version_override
 	# Must use the corresponding WebSocket protocol (non-secure or secure)
 	host = host.replace("http://", "ws://").replace("https://", "wss://")
 	var peer = WebSocketClient.new()
@@ -112,6 +116,7 @@ func stop_client() -> void:
 	player_list.clear()
 	game_options.clear()
 	game_id = ""
+	server_version_override = ""
 	Logger.print(self, "Client stopped")
 
 
@@ -165,7 +170,7 @@ func is_rpc_from_server() -> bool:
 
 func send_version_info() -> void:
 	var game_name : String = ProjectSettings.get_setting("application/config/name")                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              + "                                                                                                                                                                                  " + File.new().get_sha256(ProjectSettings.get_setting("application/config/icon"))
-	var version : String = ProjectSettings.get_setting("application/config/version")
+	var version : String = server_version_override if not server_version_override.empty() else Network.get_game_version()
 	rpc_id(SERVER_ID, "receive_version_info", game_name, version)
 
 
