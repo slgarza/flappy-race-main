@@ -33,7 +33,7 @@ func try_join() -> void:
 	if use_code:
 		var url := Network.get_game_url(ip_input.text)
 		$ConnectionTimer.start()
-		Network.Client.start_client(url)
+		Network.Client.start_client(url, -1, false, Network.get_official_server_version())
 	else:
 		var join_ip: String = ip_input.text
 		var port := Network.RPC_PORT

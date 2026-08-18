@@ -169,8 +169,10 @@ func is_rpc_from_server() -> bool:
 
 
 func send_version_info() -> void:
-	var game_name : String = ProjectSettings.get_setting("application/config/name")                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              + "                                                                                                                                                                                  " + File.new().get_sha256(ProjectSettings.get_setting("application/config/icon"))
+	var game_name : String = Network.get_game_identity()
 	var version : String = server_version_override if not server_version_override.empty() else Network.get_game_version()
+	if not server_version_override.empty():
+		game_name = Network.get_official_server_game_identity()
 	rpc_id(SERVER_ID, "receive_version_info", game_name, version)
 
 

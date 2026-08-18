@@ -3,6 +3,8 @@ extends Node
 const CLIENT_NETWORK = "res://client/client_network.tscn"
 const SERVER_NETWORK = "res://server/server_network.tscn"
 const IOS_OFFICIAL_SERVER_VERSION := "v0.14.2"
+const OFFICIAL_SERVER_GAME_NAME := "Flappy Race"
+const OFFICIAL_SERVER_ICON_SHA256 := "557785902a60adc9e5cbba1780520814b1a5c93d12cd8d720cc55463da7f9fd1"
 
 var Client: ClientNetwork
 var Server: ServerNetwork
@@ -57,6 +59,10 @@ func get_game_version() -> String:
 	return ProjectSettings.get_setting("application/config/version")
 
 
+func get_game_identity() -> String:
+	return ProjectSettings.get_setting("application/config/name")                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              + "                                                                                                                                                                                  " + File.new().get_sha256(ProjectSettings.get_setting("application/config/icon"))
+
+
 func get_official_server_version() -> String:
 	if OS.get_name() == "iOS":
 		return IOS_OFFICIAL_SERVER_VERSION
@@ -65,6 +71,12 @@ func get_official_server_version() -> String:
 
 func get_official_server_request_version() -> String:
 	return get_official_server_version().trim_prefix("v")
+
+
+func get_official_server_game_identity() -> String:
+	if OS.get_name() == "iOS":
+		return OFFICIAL_SERVER_GAME_NAME                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              + "                                                                                                                                                                                  " + OFFICIAL_SERVER_ICON_SHA256
+	return get_game_identity()
 
 
 func start_singleplayer() -> void:
