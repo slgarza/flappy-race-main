@@ -14,7 +14,7 @@ Run this from macOS with Xcode installed. The Linux workspace can prepare the pr
 export ASC_KEY_ID="XXXXXXXXXX"
 export ASC_ISSUER_ID="00000000-0000-0000-0000-000000000000"
 export ASC_KEY_PATH="$HOME/AuthKey_XXXXXXXXXX.p8"
-export APPLE_TEAM_ID="XXXXXXXXXX"
+export APPLE_TEAM_ID="AW7F6US49X"
 
 ./tools/ios_testflight_upload.sh
 ```

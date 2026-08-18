@@ -159,7 +159,7 @@
 				ORGANIZATIONNAME = GodotEngine;
 				TargetAttributes = {
 					D0BCFE3318AEBDA2004A7AAE = {
-						DevelopmentTeam = XXXXXXXXXX;
+						DevelopmentTeam = AW7F6US49X;
 						
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
@@ -363,7 +363,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = "Automatic";
 				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
-				DEVELOPMENT_TEAM = XXXXXXXXXX;
+				DEVELOPMENT_TEAM = AW7F6US49X;
 				INFOPLIST_FILE = "FlappyRace/FlappyRace-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -394,7 +394,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = "Automatic";
 				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
-				DEVELOPMENT_TEAM = XXXXXXXXXX;
+				DEVELOPMENT_TEAM = AW7F6US49X;
 				INFOPLIST_FILE = "FlappyRace/FlappyRace-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
