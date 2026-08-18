@@ -28,7 +28,7 @@ func _physics_process(_delta: float) -> void:
 
 
 func get_distance_to_leader() -> float:
-	var lead_player: CommonPlayer = Globals.client_world.get_lead_player()
+	var lead_player = Globals.client_world.get_lead_player()
 	if (
 		lead_player == null
 		or not is_instance_valid(lead_player)

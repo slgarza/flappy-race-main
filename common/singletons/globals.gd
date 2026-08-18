@@ -66,8 +66,8 @@ var sounds_volume_ratio = (
 )
 
 # World vars
-var client_world: CommonWorld
-var server_world: CommonWorld
+var client_world
+var server_world
 
 func _ready() -> void:
 	high_score = load_high_score()
@@ -229,4 +229,3 @@ func copy_to_clipboard(text: String) -> void:
 func _copy_to_clipboard_html5(text: String) -> void:
 	var js = "(function(){var el=document.createElement('textarea');el.value=%s;el.style.position='absolute';el.style.left='-9999px';document.body.appendChild(el);el.select();document.execCommand('copy');document.body.removeChild(el);})()" % [JSON.print(text)]
 	JavaScript.eval(js, true)
-

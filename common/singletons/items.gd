@@ -53,7 +53,7 @@ func calculate_item_weights_for_distances(item_ids_enabled: Array) -> void:
 		# Skip disabled items
 		if not item_ids_enabled[id]:
 			continue
-		var item: Item = items[id]
+		var item = items[id]
 		for distance in item.distance_weights:
 			var weight_for_dist: int = item.distance_weights[distance]
 			if weight_for_dist <= 0:
@@ -84,7 +84,7 @@ func get_highest_available_distance(dist_to_leader: float) -> int:
 	return highest_dist
 
 
-func get_item(id: int) -> Item:
+func get_item(id: int):
 	if id >= items.size():
 		push_error("Item ID %d doesn't exist! Max ID = %d" % [id, items.size()])
 		return null

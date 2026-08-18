@@ -169,8 +169,8 @@ func is_rpc_from_server() -> bool:
 
 
 func send_version_info() -> void:
-	var game_name : String = Network.get_game_identity()
-	var version : String = server_version_override if not server_version_override.empty() else Network.get_game_version()
+	var game_name = Network.get_game_identity()
+	var version = server_version_override if not server_version_override.empty() else Network.get_game_version()
 	if not server_version_override.empty():
 		game_name = Network.get_official_server_game_identity()
 	rpc_id(SERVER_ID, "receive_version_info", game_name, version)
@@ -424,7 +424,7 @@ remote func receive_player_death(player_id: int, death_time: int, reason: String
 
 
 remote func receive_player_add_item(player_id: int, item_id: int) -> void:
-	var item: Item = Items.get_item(item_id)
+	var item = Items.get_item(item_id)
 	Logger.print(self, "Received add item %d (%s) for player %d" % [item_id, item.name, player_id])
 	var world = get_node_or_null("World")
 	if world:
