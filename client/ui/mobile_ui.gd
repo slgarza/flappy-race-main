@@ -276,6 +276,18 @@ func adapt_setup(root) -> void:
 		_apply_button_style(button, PRIMARY_BUTTON_HEIGHT, 52, 460)
 		if button:
 			_bottom_center_rect(button, 460, PRIMARY_BUTTON_HEIGHT)
+	if is_ios():
+		for path in ["StartButton", "ReadyButton"]:
+			var bottom_button = _node(root, path)
+			if bottom_button:
+				bottom_button.margin_top += 34
+				bottom_button.margin_bottom += 34
+		var back_button = _node(root, "BackButton")
+		if back_button:
+			back_button.margin_left += 58
+			back_button.margin_right += 58
+			back_button.margin_top += 34
+			back_button.margin_bottom += 34
 	var player_control = _node(root, "PlayerOptions/Control")
 	if player_control:
 		player_control.margin_top = 40
