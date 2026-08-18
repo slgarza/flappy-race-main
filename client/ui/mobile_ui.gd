@@ -41,7 +41,11 @@ func adapt_title_screen(root) -> void:
 		_fill_parent_with_margin(menu, SAFE_MARGIN)
 	var logo = _node(root, "Menu/Logo")
 	if logo:
-		logo.margin_bottom = 170
+		if is_ios():
+			_center_rect(logo, Vector2(760, 220), Vector2(0, -365))
+			logo.rect_min_size = Vector2(760, 220)
+		else:
+			logo.margin_bottom = 170
 	var buttons = _node(root, "Menu/Buttons")
 	if buttons:
 		_center_rect(buttons, Vector2(700, 800), Vector2(0, 78))
