@@ -45,3 +45,7 @@ android/unused-generated-signing-*/
 *.ipa
 *.xcarchive
 DerivedData/
+*.p8
+*.p12
+*.mobileprovision
+private_keys/
