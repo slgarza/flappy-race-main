@@ -38,7 +38,7 @@ func _ready() -> void:
 
 func _load_logo_texture() -> void:
 	$Menu/Logo.expand = true
-	$Menu/Logo.stretch_mode = 4
+	$Menu/Logo.stretch_mode = 5
 	$Menu/Logo.texture = IOS_LOGO_TEXTURE if OS.get_name() == "iOS" else DEFAULT_LOGO_TEXTURE
 
 
