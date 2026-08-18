@@ -42,7 +42,7 @@ func adapt_title_screen(root) -> void:
 	var logo = _node(root, "Menu/Logo")
 	if logo:
 		if is_ios():
-			_center_rect(logo, Vector2(760, 220), Vector2(0, -365))
+			_center_rect(logo, Vector2(760, 220), Vector2(47, -405))
 			logo.rect_min_size = Vector2(760, 220)
 		else:
 			logo.margin_bottom = 170
