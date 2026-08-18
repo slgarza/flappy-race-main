@@ -291,7 +291,7 @@
 					"$(HOME)/godot-3.6.2-ios-arm64sim",
 					"$(HOME)/godot-3.6.2-ios-arm64sim/platform/iphone",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				"LD_CLASSIC_1500" = "-ld_classic";
 				"LD_CLASSIC_1501" = "-ld_classic";
 				"LD_CLASSIC_1510" = "-ld_classic";
@@ -342,7 +342,7 @@
 					"$(HOME)/godot-3.6.2-ios-arm64sim",
 					"$(HOME)/godot-3.6.2-ios-arm64sim/platform/iphone",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				"LD_CLASSIC_1500" = "-ld_classic";
 				"LD_CLASSIC_1501" = "-ld_classic";
 				"LD_CLASSIC_1510" = "-ld_classic";
@@ -365,7 +365,7 @@
 				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
 				DEVELOPMENT_TEAM = AW7F6US49X;
 				INFOPLIST_FILE = "FlappyRace/FlappyRace-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -396,7 +396,7 @@
 				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
 				DEVELOPMENT_TEAM = AW7F6US49X;
 				INFOPLIST_FILE = "FlappyRace/FlappyRace-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
