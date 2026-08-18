@@ -15,9 +15,10 @@ func _on_BackButton_pressed() -> void:
 
 
 func _credits_text() -> String:
+	var port_platform := _port_platform_name()
 	return PoolStringArray([
-		"Android Port",
-		"Modified/adapted for Android and published by SLG Developer.",
+		"%s Port" % port_platform,
+		"Modified/adapted for %s and published by SLG Developer." % port_platform,
 		"",
 		"Original Game",
 		"Flappy Race by Jibby Games.",
@@ -31,7 +32,7 @@ func _credits_text() -> String:
 		"Assets",
 		"Unless mentioned otherwise, art assets, images, sounds, and files under raw_assets/ are distributed under the Creative Commons Attribution 4.0 International license:",
 		"https://creativecommons.org/licenses/by/4.0/",
-		"Changes were made as part of the Android adaptation.",
+		"Changes were made as part of the %s adaptation." % port_platform,
 		"",
 		"Sprites",
 		"Wall sprite by www.kenney.nl, licensed under CC0 1.0 Universal:",
@@ -61,3 +62,9 @@ func _credits_text() -> String:
 		"",
 		"No endorsement by the original authors or asset creators is implied."
 	]).join("\n")
+
+
+func _port_platform_name() -> String:
+	if OS.get_name() == "iOS":
+		return "iOS"
+	return "Android"
