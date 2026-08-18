@@ -236,6 +236,7 @@ func adapt_options(root) -> void:
 		if row:
 			row.rect_min_size = Vector2(0, 48)
 	_apply_button_style(_node(root, "CenterContainer/GridContainer/Gameplay/VBoxContainer/ResetHighScoreButton"), 86, 34, 560)
+	_apply_button_style(_node(root, "CenterContainer/GridContainer/Gameplay/VBoxContainer/RestorePurchasesButton"), 86, 34, 560)
 	_adapt_back_button(_node(root, "BackButton"))
 	var reset = _node(root, "ResetButton")
 	_apply_button_style(reset, BUTTON_HEIGHT, BUTTON_FONT_SIZE, 360)

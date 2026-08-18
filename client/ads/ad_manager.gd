@@ -7,6 +7,7 @@ signal remove_ads_purchase_cancelled
 const SHOW_CHANCE := 1.0
 const PLUGIN_NAME := "FlappyAds"
 const SUPPORTED_PLUGIN_PLATFORMS := ["Android", "iOS"]
+const MANUAL_RESTORE_PLATFORMS := ["iOS"]
 const SAVE_PATH := "user://purchases.cfg"
 const PURCHASE_SECTION := "purchases"
 const REMOVE_ADS_KEY := "remove_ads"
@@ -60,6 +61,10 @@ func is_remove_ads_available() -> bool:
 	return _plugin != null and _plugin.has_method("purchase_remove_ads")
 
 
+func is_restore_purchases_available() -> bool:
+	return MANUAL_RESTORE_PLATFORMS.has(OS.get_name()) and _has_restore_purchases_plugin()
+
+
 func purchase_remove_ads() -> void:
 	print("FlappyAds: purchase_remove_ads called. ads_removed=%s, available=%s, plugin=%s" % [_ads_removed, is_remove_ads_available(), _plugin])
 	if _ads_removed:
@@ -74,7 +79,7 @@ func purchase_remove_ads() -> void:
 
 
 func restore_purchases() -> void:
-	if _plugin != null and _plugin.has_method("restore_purchases"):
+	if _has_restore_purchases_plugin():
 		_plugin.restore_purchases()
 
 
@@ -97,12 +102,17 @@ func _connect_ads_plugin() -> void:
 
 	if _plugin.has_method("initialize"):
 		_plugin.initialize()
-	restore_purchases()
+	if not MANUAL_RESTORE_PLATFORMS.has(OS.get_name()):
+		restore_purchases()
 
 
 func _connect_plugin_signal(signal_name: String, method_name: String) -> void:
 	if _plugin.has_signal(signal_name) and not _plugin.is_connected(signal_name, self, method_name):
 		_plugin.connect(signal_name, self, method_name)
+
+
+func _has_restore_purchases_plugin() -> bool:
+	return _plugin != null and _plugin.has_method("restore_purchases")
 
 
 func _should_show_interstitial() -> bool:

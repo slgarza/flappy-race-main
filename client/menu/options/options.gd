@@ -2,6 +2,13 @@ extends MenuControl
 
 var title_scene := "res://client/menu/title/title_screen.tscn"
 
+const RESTORE_PURCHASES_LABEL := "Restore Purchases"
+const RESTORE_PURCHASES_WAITING_LABEL := "Restoring..."
+const RESTORE_PURCHASES_SUCCESS_LABEL := "Restored"
+const RESTORE_PURCHASES_FAILURE_LABEL := "Nothing Restored"
+const RESTORE_PURCHASES_RESULT_SECONDS := 1.5
+const RESTORE_PURCHASES_TIMEOUT_SECONDS := 4.0
+
 export(NodePath) var master_slider_path
 export(NodePath) var master_percent_path
 export(NodePath) var music_slider_path
@@ -45,6 +52,13 @@ func _ready() -> void:
 	resolution_options.connect("item_selected", self, "_on_ResolutionOptionButton_item_selected")
 	fullscreen_button.connect("toggled", self, "_on_FullscreenCheckButton_toggled")
 	vsync_button.connect("toggled", self, "_on_VsyncCheckButton_toggled")
+	if Ads.has_signal("remove_ads_purchased") and not Ads.is_connected("remove_ads_purchased", self, "_on_restore_purchases_finished"):
+		Ads.connect("remove_ads_purchased", self, "_on_restore_purchases_finished", [true])
+	if Ads.has_signal("remove_ads_purchase_failed") and not Ads.is_connected("remove_ads_purchase_failed", self, "_on_restore_purchases_finished"):
+		Ads.connect("remove_ads_purchase_failed", self, "_on_restore_purchases_finished", [false])
+	if Ads.has_signal("remove_ads_purchase_cancelled") and not Ads.is_connected("remove_ads_purchase_cancelled", self, "_on_restore_purchases_finished"):
+		Ads.connect("remove_ads_purchase_cancelled", self, "_on_restore_purchases_finished", [false])
+	_update_restore_purchases_button()
 
 
 func load_all_settings() -> void:
@@ -103,6 +117,36 @@ func _on_VsyncCheckButton_toggled(button_pressed: bool) -> void:
 func _on_ResetHighScoreButton_pressed() -> void:
 	Globals.reset_high_score()
 	high_score_label.set_text(str(Globals.high_score))
+
+
+func _on_RestorePurchasesButton_pressed() -> void:
+	var button = $CenterContainer/GridContainer/Gameplay/VBoxContainer/RestorePurchasesButton
+	button.disabled = true
+	button.text = RESTORE_PURCHASES_WAITING_LABEL
+	Ads.restore_purchases()
+	yield(get_tree().create_timer(RESTORE_PURCHASES_TIMEOUT_SECONDS), "timeout")
+	if not is_inside_tree():
+		return
+	if button.text == RESTORE_PURCHASES_WAITING_LABEL:
+		_on_restore_purchases_finished(false)
+
+
+func _on_restore_purchases_finished(restored: bool) -> void:
+	if not is_inside_tree():
+		return
+	var button = $CenterContainer/GridContainer/Gameplay/VBoxContainer/RestorePurchasesButton
+	button.text = RESTORE_PURCHASES_SUCCESS_LABEL if restored else RESTORE_PURCHASES_FAILURE_LABEL
+	yield(get_tree().create_timer(RESTORE_PURCHASES_RESULT_SECONDS), "timeout")
+	if not is_inside_tree():
+		return
+	_update_restore_purchases_button()
+
+
+func _update_restore_purchases_button() -> void:
+	var button = $CenterContainer/GridContainer/Gameplay/VBoxContainer/RestorePurchasesButton
+	button.disabled = false
+	button.visible = Ads.is_restore_purchases_available() and not Ads.are_ads_removed()
+	button.text = RESTORE_PURCHASES_LABEL
 
 
 func _on_ResetButton_pressed() -> void:

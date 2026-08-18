@@ -326,6 +326,13 @@ margin_bottom = 61.0
 theme = ExtResource( 2 )
 text = "Reset High Score"
 
+[node name="RestorePurchasesButton" type="Button" parent="CenterContainer/GridContainer/Gameplay/VBoxContainer"]
+margin_top = 71.0
+margin_right = 400.0
+margin_bottom = 98.0
+theme = ExtResource( 2 )
+text = "Restore Purchases"
+
 [node name="SoundsVolumeTester" type="AudioStreamPlayer" parent="."]
 stream = ExtResource( 4 )
 bus = "Sounds"
@@ -355,5 +362,6 @@ label = "Reset All"
 alignment = 1
 
 [connection signal="pressed" from="CenterContainer/GridContainer/Gameplay/VBoxContainer/ResetHighScoreButton" to="." method="_on_ResetHighScoreButton_pressed"]
+[connection signal="pressed" from="CenterContainer/GridContainer/Gameplay/VBoxContainer/RestorePurchasesButton" to="." method="_on_RestorePurchasesButton_pressed"]
 [connection signal="pressed" from="BackButton" to="." method="_on_BackButton_pressed"]
 [connection signal="pressed" from="ResetButton" to="." method="_on_ResetButton_pressed"]
