@@ -42,6 +42,8 @@ func _load_logo_texture() -> void:
 	if not texture:
 		Logger.print(self, "Could not load title logo: %s" % logo_path)
 		return
+	$Menu/Logo.expand = true
+	$Menu/Logo.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	$Menu/Logo.texture = texture
 
 
