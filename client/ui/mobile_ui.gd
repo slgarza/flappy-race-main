@@ -284,10 +284,16 @@ func adapt_setup(root) -> void:
 				bottom_button.margin_bottom += 34
 		var back_button = _node(root, "BackButton")
 		if back_button:
-			back_button.margin_left += 58
-			back_button.margin_right += 58
-			back_button.margin_top += 34
-			back_button.margin_bottom += 34
+			_apply_button_style(back_button, 82, 36, 260)
+			back_button.anchor_left = 0
+			back_button.anchor_top = 1
+			back_button.anchor_right = 0
+			back_button.anchor_bottom = 1
+			back_button.margin_left = safe_margin + 120
+			back_button.margin_top = -112
+			back_button.margin_right = safe_margin + 380
+			back_button.margin_bottom = -30
+			back_button.rect_min_size = Vector2(260, 82)
 	var player_control = _node(root, "PlayerOptions/Control")
 	if player_control:
 		player_control.margin_top = 40
@@ -318,6 +324,9 @@ func adapt_setup(root) -> void:
 	var game_options = _node(root, "GameOptions")
 	if game_options:
 		adapt_game_options(game_options)
+	var back_button = _node(root, "BackButton")
+	if back_button:
+		back_button.raise()
 
 
 func adapt_setup_spectate_button(root, is_spectating: bool) -> void:
