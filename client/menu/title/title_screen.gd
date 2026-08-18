@@ -5,8 +5,8 @@ var multiplayer_scene := "res://client/menu/lobby/name_entry.tscn"
 var options_scene := "res://client/menu/options/options.tscn"
 var credits_scene := "res://client/menu/credits/credits.tscn"
 var title_player := preload("res://client/menu/title/title_player.tscn")
-const DEFAULT_LOGO_PATH := "res://client/menu/title/flappy_race_logo.png"
-const IOS_LOGO_PATH := "res://client/menu/title/flappy_kart_logo.png"
+const DEFAULT_LOGO_TEXTURE := preload("res://client/menu/title/flappy_race_logo.png")
+const IOS_LOGO_TEXTURE := preload("res://client/menu/title/flappy_kart_logo.png")
 const REMOVE_ADS_FAILURE_LABEL := "Store unavailable"
 const REMOVE_ADS_FAILURE_SECONDS := 1.5
 # Aim for about 16 players
@@ -37,14 +37,9 @@ func _ready() -> void:
 
 
 func _load_logo_texture() -> void:
-	var logo_path := IOS_LOGO_PATH if OS.get_name() == "iOS" else DEFAULT_LOGO_PATH
-	var texture = ResourceLoader.load(logo_path)
-	if not texture:
-		Logger.print(self, "Could not load title logo: %s" % logo_path)
-		return
 	$Menu/Logo.expand = true
-	$Menu/Logo.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	$Menu/Logo.texture = texture
+	$Menu/Logo.stretch_mode = 4
+	$Menu/Logo.texture = IOS_LOGO_TEXTURE if OS.get_name() == "iOS" else DEFAULT_LOGO_TEXTURE
 
 
 func spawn_title_players() -> void:
