@@ -658,6 +658,10 @@ func send_player_finished_race(player_id: int, place: int, time: float) -> void:
 	rpc("receive_player_finished_race", player_id, place, time)
 
 
+func send_arcade_game_over(player_id: int, time: float) -> void:
+	rpc_id(player_id, "receive_arcade_game_over", time)
+
+
 func send_leaderboard(leaderboard: Array) -> void:
 	rpc("receive_leaderboard", leaderboard)
 

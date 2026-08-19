@@ -476,6 +476,16 @@ func adapt_hud(ui) -> void:
 		stopwatch.margin_right = -safe_margin
 		stopwatch.margin_bottom = safe_margin + 58
 		stopwatch.rect_min_size = Vector2(252, 0)
+	var arcade_stats = _node(ui, "Ingame/ArcadeStats")
+	if arcade_stats:
+		arcade_stats.margin_left = -392 - safe_margin
+		arcade_stats.margin_top = safe_margin + 70
+		arcade_stats.margin_right = -safe_margin
+		arcade_stats.margin_bottom = safe_margin + 190
+		arcade_stats.rect_min_size = Vector2(352, 0)
+		arcade_stats.add_constant_override("separation", 8)
+	_apply_label_style(_node(ui, "Ingame/ArcadeStats/Score"), 38, false, true)
+	_apply_label_style(_node(ui, "Ingame/ArcadeStats/HighScore"), 34, false, true)
 	var race_progress = _node(ui, "Ingame/RaceProgress")
 	if race_progress:
 		_center_top_rect(race_progress, 940, 64, safe_margin + 112)
@@ -515,6 +525,25 @@ func adapt_hud(ui) -> void:
 		spectating_label.rect_min_size = Vector2(340, ICON_BUTTON_SIZE)
 	_adapt_leaderboard(ui)
 	_adapt_loading(ui)
+
+
+func adapt_arcade_game_over(ui) -> void:
+	if not is_mobile():
+		return
+	var result = _node(ui, "Finished/ArcadeResult")
+	if not result:
+		return
+	_center_rect(result, Vector2(900, 650))
+	result.add_constant_override("separation", 18)
+	_apply_label_style(_node(result, "Title"), 72, true, true)
+	_apply_label_style(_node(result, "Time"), 50, true, true)
+	_apply_label_style(_node(result, "Score"), 50, true, true)
+	_apply_label_style(_node(result, "HighScore"), 42, true, true)
+	var buttons = _node(result, "Buttons")
+	if buttons:
+		buttons.add_constant_override("separation", 24)
+		for button in buttons.get_children():
+			_apply_button_style(button, 96, 36, 360)
 
 
 func _adapt_leaderboard(ui) -> void:

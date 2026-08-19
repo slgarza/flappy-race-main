@@ -13,6 +13,7 @@ var player_lives := {}
 var players_died := []
 var players_finished := []
 var bot_controllers := []
+var arcade_game_over_sent := false
 
 # Timing
 var time_running := false
@@ -132,6 +133,15 @@ func despawn_player(player_id: int) -> void:
 
 func _on_Player_death(player: CommonPlayer) -> void:
 	._on_Player_death(player)
+	if game_options.get("arcade", false):
+		if arcade_game_over_sent:
+			return
+		arcade_game_over_sent = true
+		var arcade_player_id := int(player.name)
+		Network.Server.send_arcade_game_over(arcade_player_id, time)
+		Network.Server.send_despawn_player(arcade_player_id)
+		despawn_player(arcade_player_id)
+		return
 	if game_options.lives > 0:
 		var player_id := int(player.name)
 		player_lose_life(player_id)
@@ -186,6 +196,8 @@ func _on_Player_finish(player: CommonPlayer) -> void:
 func end_race() -> void:
 	.end_race()
 	time_running = false
+	if game_options.get("arcade", false):
+		return
 	var leaderboard := players_finished.duplicate()
 	leaderboard.append_array(players_died)
 	leaderboard.sort_custom(self, "leaderboard_sort")

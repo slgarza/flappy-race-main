@@ -21,6 +21,7 @@ var camera_target_id := -1
 var camera_starting_position := Vector2(-5000, 0)
 var arcade_scores := {}
 var arcade_coin_balances := {}
+var arcade_game_ended := false
 
 
 func _ready() -> void:
@@ -32,7 +33,7 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	# Update the player's progress in the UI
-	if finish_line_x_pos != 0:
+	if finish_line_x_pos != 0 and not game_options.get("arcade", false):
 		update_player_progress()
 	# Make wind particles spawn ahead of the camera
 	$WindParticles.position.x = $MainCamera.position.x + get_viewport_rect().size.x
@@ -157,6 +158,7 @@ func start_game(game_seed: int, new_game_options: Dictionary, new_player_list: D
 	$UI.set_player_list(new_player_list)
 	$UI.update_lives(game_options.lives)
 	$UI.items_enabled(game_options.items)
+	$UI.configure_arcade(game_options.get("arcade", false), Globals.high_score)
 	Network.Client.send_client_ready()
 	$UI/Loading.set_hint_text("Waiting for players")
 	finish_line_x_pos = level_generator.finish_line.position.x
@@ -330,12 +332,25 @@ func _on_Player_coins_changed(player: CommonPlayer) -> void:
 			var new_score: int = arcade_scores.get(player_id, 0)
 			if new_score > Globals.high_score:
 				Globals.high_score = new_score
+			$UI.update_arcade_high_score(Globals.high_score)
 	# Only update for the camera target
 	if player_id == camera_target_id:
 		$UI.update_coins(player.coins)
 		if game_options.get("arcade", false):
 			$UI.update_score(arcade_scores.get(player_id, 0))
 		$MainCamera.add_trauma(0.3)
+
+
+func arcade_game_over(time: float) -> void:
+	if arcade_game_ended or not game_options.get("arcade", false):
+		return
+	arcade_game_ended = true
+	var player_id := multiplayer.get_network_unique_id()
+	var final_score: int = arcade_scores.get(player_id, 0)
+	$UI.show_arcade_game_over(time, final_score, Globals.high_score)
+	$MusicPlayer.stop()
+	$FinishMusic.play()
+	$FinishChime.play()
 
 
 func _on_Player_got_item(player: CommonPlayer, item: Item) -> void:

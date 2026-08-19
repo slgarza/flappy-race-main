@@ -35,9 +35,9 @@ func _input(event: InputEvent) -> void:
 
 func enable_pause_menu() -> void:
 	_configure_buttons()
-	# Only allow the game clock to be paused in singleplayer.
-	if Network.Client.is_singleplayer:
-		get_tree().paused = true
+	# This is an overlay only. Client simulation, the embedded server and network
+	# polling must keep running while the menu is open.
+	get_tree().paused = false
 	MobileUI.adapt_pause_menu(self)
 	self.popup()
 

@@ -39,6 +39,9 @@ func _physics_process(_delta: float) -> void:
 func _input(event: InputEvent) -> void:
 	if not is_controlled:
 		return
+	var pause_menu = get_parent().get_node_or_null("UI/PauseMenu")
+	if pause_menu and pause_menu.visible:
+		return
 	if is_mobile_touch_flap(event):
 		last_mobile_touch_flap_msec = OS.get_ticks_msec()
 		flap()

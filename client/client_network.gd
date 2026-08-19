@@ -532,6 +532,14 @@ remote func receive_player_finished_race(player_id: int, place: int, time: float
 		world.player_finished(player_id, place, time)
 
 
+remote func receive_arcade_game_over(time: float) -> void:
+	if is_rpc_from_server() == false:
+		return
+	var world = get_node_or_null("World")
+	if world:
+		world.arcade_game_over(time)
+
+
 remote func receive_leaderboard(leaderboard: Array) -> void:
 	if is_rpc_from_server() == false:
 		return

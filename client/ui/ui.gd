@@ -66,9 +66,24 @@ func update_lives(new_lives: int) -> void:
 func items_enabled(value: bool) -> void:
 	Coins.visible = value
 
+
+func configure_arcade(enabled: bool, high_score: int = 0) -> void:
+	RaceProgress.visible = not enabled
+	Score.visible = not enabled
+	$Ingame/ArcadeStats.visible = enabled
+	if enabled:
+		update_score(0)
+		update_arcade_high_score(high_score)
+
+
 func update_score(new_score: int) -> void:
 	# Actual incrementing is handled on the player object
 	Score.text = str(new_score)
+	$Ingame/ArcadeStats/Score.text = "Score: %d" % new_score
+
+
+func update_arcade_high_score(value: int) -> void:
+	$Ingame/ArcadeStats/HighScore.text = "High Score: %d" % value
 
 
 func update_coins(value: int) -> void:
@@ -97,12 +112,55 @@ func show_death() -> void:
 
 func show_finished(place: int, time: float) -> void:
 	$Death.hide()
+	$Finished/ArcadeResult.hide()
+	$Finished/FinishedLabel.show()
+	$Finished/PlaceLabel.show()
+	$Finished/FinishTime.show()
 	_set_pause_button_visible(false)
 	$Finished/PlaceLabel.text = int2ordinal(place)
 	$Finished/FinishTime.set_time(time)
 	$Finished.show()
 	$Ingame/InputControls.stop_checking_for_input()
 	$Finished/AnimationPlayer.play("Finished")
+
+
+func show_arcade_game_over(time: float, score: int, high_score: int) -> void:
+	$PauseMenu.disable_pause_menu()
+	$Ingame/Stopwatch.stop()
+	$Ingame/InputControls.stop_checking_for_input()
+	$Ingame.hide()
+	$Death.hide()
+	$Leaderboard.hide()
+	_set_pause_button_visible(false)
+	$Finished/AnimationPlayer.stop()
+	$Finished/FinishedLabel.hide()
+	$Finished/PlaceLabel.hide()
+	$Finished/FinishTime.hide()
+	$Finished/ArcadeResult/Time.set_time(time)
+	$Finished/ArcadeResult/Score.text = "Score: %d" % score
+	$Finished/ArcadeResult/HighScore.text = "High Score: %d" % high_score
+	$Finished/ArcadeResult.show()
+	$Finished.show()
+	MobileUI.adapt_arcade_game_over(self)
+	if not MobileUI.is_mobile():
+		$Finished/ArcadeResult/Buttons/NewRaceButton.grab_focus()
+
+
+func _on_ArcadeNewRaceButton_pressed() -> void:
+	Ads.run_after_maybe_interstitial(self, "_request_arcade_new_race_after_ad")
+
+
+func _request_arcade_new_race_after_ad() -> void:
+	Network.Client.send_change_to_setup_request()
+
+
+func _on_ArcadeMainMenuButton_pressed() -> void:
+	Ads.run_after_maybe_interstitial(self, "_return_from_arcade_to_main_menu_after_ad")
+
+
+func _return_from_arcade_to_main_menu_after_ad() -> void:
+	Network.stop_networking()
+	Network.Client.change_scene_to_title_screen()
 
 
 func show_leaderboard(player_list: Array) -> void:
