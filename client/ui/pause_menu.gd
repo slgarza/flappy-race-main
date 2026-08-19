@@ -75,7 +75,9 @@ func _return_to_main_menu_after_ad() -> void:
 
 
 func _on_QuitButton_pressed() -> void:
-	get_tree().notification(MainLoop.NOTIFICATION_WM_QUIT_REQUEST)
+	get_tree().paused = false
+	Network.stop_networking()
+	get_tree().quit()
 
 
 func _on_RemoveAdsButton_pressed() -> void:
@@ -115,9 +117,13 @@ func _configure_buttons() -> void:
 	$VBoxContainer/NewRaceButton.visible = (not is_multiplayer) and Network.Client.is_host()
 	$VBoxContainer/MainMenuButton.visible = true
 	$VBoxContainer/RemoveAdsButton.disabled = false
-	$VBoxContainer/RemoveAdsButton.visible = Ads.is_remove_ads_available() and not Ads.are_ads_removed()
+	$VBoxContainer/RemoveAdsButton.visible = (
+		(not is_multiplayer) and Ads.is_remove_ads_available() and not Ads.are_ads_removed()
+	)
 	_set_menu_button_label($VBoxContainer/RemoveAdsButton, "Remove Ads")
-	$VBoxContainer/QuitButton.visible = not is_multiplayer
+	# iOS and Android applications should not offer a button that terminates the
+	# process. Desktop single-player keeps a functional Quit action.
+	$VBoxContainer/QuitButton.visible = (not is_multiplayer) and not MobileUI.is_mobile()
 
 
 func _set_menu_button_label(button, text: String) -> void:

@@ -33,6 +33,8 @@ var player_list := {}
 var game_options := {}
 var server_version := ""
 var game_id := ""
+var embedded_server := false
+var _stopping := false
 
 
 signal host_changed(old_host_id, new_host_id)
@@ -56,13 +58,13 @@ func _ready() -> void:
 
 	# Register with the Network singleton so this node can be easily accessed
 	Network.Server = self
-	for i in Items.items.size():
-		DEFAULT_GAME_OPTIONS.item_ids_enabled.append(true)
 
 
 func _exit_tree() -> void:
 	multiplayer.disconnect("network_peer_disconnected", self, "_peer_disconnected")
 	multiplayer.disconnect("network_peer_connected", self, "_peer_connected")
+	if Network.Server == self:
+		Network.Server = null
 
 ### Host functions
 
@@ -94,15 +96,23 @@ func start_server(
 	server_name: String,
 	use_server_list: bool,
 	use_timeout: bool = false,
-	_game_id: String = ""
-) -> void:
+	_game_id: String = "",
+	_embedded_server: bool = false
+) -> bool:
 	if OS.has_feature('web'):
 		push_error("Server hosting is not supported on browsers!")
-		return
+		return false
+	_stopping = false
+	embedded_server = _embedded_server
 	port = server_port
 	use_tls = false
 	max_players = server_max_players
-	game_options = DEFAULT_GAME_OPTIONS.duplicate()
+	# Build fresh options for every server instance. Mutating the array stored in
+	# DEFAULT_GAME_OPTIONS would accumulate entries each time an embedded server
+	# is destroyed and recreated.
+	game_options = DEFAULT_GAME_OPTIONS.duplicate(true)
+	for i in Items.items.size():
+		game_options.item_ids_enabled.append(true)
 	server_version = ProjectSettings.get_setting("application/config/version")
 	self.game_id = _game_id
 	if forward_port:
@@ -117,7 +127,9 @@ func start_server(
 		peer.ssl_certificate = Network.X509_CERT
 	var result: int
 	result = peer.listen(port, PoolStringArray(), true)
-	assert(result == OK)
+	if result != OK:
+		push_error("Unable to start server on port %d. Error: %d" % [port, result])
+		return false
 	# Same goes for things like:
 	# get_tree().set_network_peer() -> multiplayer.set_network_peer()
 	# Basically, anything networking related needs to be updated this way.
@@ -136,6 +148,7 @@ func start_server(
 		$ServerListHandler.start_connection(server_name, Network.SERVER_LIST_URL, self.game_id)
 	if use_timeout:
 		_start_player_timeout()
+	return true
 
 
 func _notification(what) -> void:
@@ -146,6 +159,9 @@ func _notification(what) -> void:
 
 
 func stop_server() -> void:
+	if _stopping:
+		return
+	_stopping = true
 	if $ServerListHandler.connection_started:
 		$ServerListHandler.stop_connection()
 	if has_node("UpnpHandler"):
@@ -157,6 +173,8 @@ func stop_server() -> void:
 	max_players = 0
 	port = 0
 	game_id = ""
+	embedded_server = false
+	$StateProcessing.running = false
 	if multiplayer.has_network_peer():
 		multiplayer.network_peer.stop()
 	multiplayer.call_deferred("set_network_peer", null)
@@ -179,13 +197,18 @@ func _peer_connected(player_id: int) -> void:
 
 
 func _peer_disconnected(player_id: int) -> void:
+	if _stopping:
+		return
 	var peers = multiplayer.get_network_connected_peers()
 	Logger.print(self, "Player %s disconnected - %d/%d" % [player_id, peers.size(), max_players])
-	var player_erased = player_list.erase(player_id)
-	assert(player_erased)
+	# The player list may already have been cleared by another shutdown path.
+	player_list.erase(player_id)
 	if peers.empty():
 		# All players disconnected
-		if persistent_server:
+		if embedded_server:
+			Logger.print(self, "Embedded server lost its local peer - ending local session")
+			Network.call_deferred("handle_embedded_server_disconnect")
+		elif persistent_server:
 			# Reset everything ready for future players
 			clear_host()
 			change_scene_to_setup()

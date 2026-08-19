@@ -8,6 +8,7 @@ const OFFICIAL_SERVER_ICON_SHA256 := "557785902a60adc9e5cbba1780520814b1a5c93d12
 
 var Client
 var Server
+var _starting_embedded_server := false
 
 var RPC_PORT: int = ProjectSettings.get_setting("game/config/rpc_port")
 var MAX_PLAYERS: int = ProjectSettings.get_setting("game/config/max_players")
@@ -80,11 +81,28 @@ func get_official_server_game_identity() -> String:
 
 
 func start_singleplayer() -> void:
-	if not Server:
-		Server = _load_network_scene(SERVER_NETWORK)
-		yield(Server, "ready")
-	Server.start_server(RPC_PORT, 1, false, "", false)
+	if _starting_embedded_server:
+		return
+	_starting_embedded_server = true
+
+	# Never reuse an embedded server. A stopped WebSocket peer and its custom
+	# MultiplayerAPI can still have deferred cleanup queued, which can detach a
+	# newly-created peer and leave the next race without an authoritative server.
+	_dispose_server_instance()
+	# Allow deferred peer cleanup from the previous client/server session to run.
+	yield(get_tree(), "idle_frame")
+
+	Server = _load_network_scene(SERVER_NETWORK)
+	yield(Server, "ready")
+	var started: bool = Server.start_server(RPC_PORT, 1, false, "", false, false, "", true)
+	if not started:
+		_starting_embedded_server = false
+		_dispose_server_instance()
+		Client.change_scene_to_title_screen()
+		Globals.show_message("Unable to start the local game server.", "Local Server Error")
+		return
 	Client.start_client("ws://127.0.0.1", RPC_PORT, true)
+	_starting_embedded_server = false
 
 
 func start_multiplayer_host(
@@ -97,7 +115,13 @@ func start_multiplayer_host(
 	if not Server:
 		Server = _load_network_scene(SERVER_NETWORK)
 		yield(Server, "ready")
-	Server.start_server(port, MAX_PLAYERS, use_upnp, server_name, use_server_list, false, game_id)
+	var started: bool = Server.start_server(
+		port, MAX_PLAYERS, use_upnp, server_name, use_server_list, false, game_id, true
+	)
+	if not started:
+		_dispose_server_instance()
+		Globals.show_message("Unable to start the hosted game server.", "Server Error")
+		return
 	Client.start_client("ws://127.0.0.1", port)
 
 
@@ -107,13 +131,42 @@ func start_server(
 	if not Server:
 		Server = _load_network_scene(SERVER_NETWORK)
 		yield(Server, "ready")
-	Server.start_server(port, MAX_PLAYERS, use_upnp, server_name, use_server_list, use_timeout, game_id)
+	var started: bool = Server.start_server(
+		port, MAX_PLAYERS, use_upnp, server_name, use_server_list, use_timeout, game_id, false
+	)
+	if not started:
+		_dispose_server_instance()
 
 
 func stop_networking() -> void:
-	Client.stop_client()
-	if Server:
-		Server.stop_server()
+	_starting_embedded_server = false
+	if Client:
+		Client.stop_client()
+	_dispose_server_instance()
+
+
+func _dispose_server_instance() -> void:
+	if not Server or not is_instance_valid(Server):
+		Server = null
+		return
+
+	var server_instance = Server
+	var server_root = server_instance.get_parent()
+	# Clear the singleton reference first so exit-tree callbacks and any deferred
+	# disconnect notification cannot make this stopped server reusable.
+	Server = null
+	server_instance.stop_server()
+	if server_root and is_instance_valid(server_root):
+		server_root.queue_free()
+
+
+func handle_embedded_server_disconnect() -> void:
+	# An unexpected loss of the only local peer must end the current session,
+	# not the entire application and not leave a client-only "ghost" race.
+	if Client and Client.is_connected:
+		Client.lost_connection("The local game server stopped unexpectedly.")
+	else:
+		_dispose_server_instance()
 
 
 # Returns true if the server network is active and listening for connections

@@ -6,9 +6,11 @@
 [ext_resource path="res://server/server_list_handler.tscn" type="PackedScene" id=4]
 
 [node name="Server" type="Node"]
+pause_mode = 2
 script = ExtResource( 2 )
 
 [node name="Network" type="Viewport" parent="."]
+pause_mode = 1
 usage = 1
 script = ExtResource( 1 )
 
