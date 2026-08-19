@@ -7,7 +7,7 @@ export(int) var message_limit := 6
 var messages := []
 
 func _ready() -> void:
-	var result := Network.Client.connect("player_list_changed", self, "_on_player_list_changed")
+	var result: int = Network.Client.connect("player_list_changed", self, "_on_player_list_changed")
 	assert(result == OK)
 
 

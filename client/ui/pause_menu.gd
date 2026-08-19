@@ -109,7 +109,7 @@ func _on_remove_ads_purchase_cancelled() -> void:
 
 
 func _configure_buttons() -> void:
-	var is_multiplayer := not Network.Client.is_singleplayer
+	var is_multiplayer: bool = not Network.Client.is_singleplayer
 	_set_menu_button_label($VBoxContainer/ResumeButton, "Continue" if is_multiplayer else "Resume")
 	_set_menu_button_label($VBoxContainer/MainMenuButton, "Exit Game" if is_multiplayer else "Main Menu")
 	$VBoxContainer/NewRaceButton.visible = (not is_multiplayer) and Network.Client.is_host()

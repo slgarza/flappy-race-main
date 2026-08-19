@@ -9,12 +9,12 @@ const OFFICIAL_SERVER_ICON_SHA256 := "557785902a60adc9e5cbba1780520814b1a5c93d12
 var Client
 var Server
 
-var RPC_PORT = ProjectSettings.get_setting("game/config/rpc_port")
-var MAX_PLAYERS = ProjectSettings.get_setting("game/config/max_players")
-var SERVER_DOMAIN_URL = ProjectSettings.get_setting("game/config/server_domain_url")
-var SERVER_LIST_URL = SERVER_DOMAIN_URL + ProjectSettings.get_setting("game/config/server_list_route")
-var SERVER_MANAGER_URL = SERVER_DOMAIN_URL + ProjectSettings.get_setting("game/config/server_manager_route")
-var SERVER_GAME_URL = SERVER_DOMAIN_URL + ProjectSettings.get_setting("game/config/server_game_route")
+var RPC_PORT: int = ProjectSettings.get_setting("game/config/rpc_port")
+var MAX_PLAYERS: int = ProjectSettings.get_setting("game/config/max_players")
+var SERVER_DOMAIN_URL: String = ProjectSettings.get_setting("game/config/server_domain_url")
+var SERVER_LIST_URL: String = SERVER_DOMAIN_URL + ProjectSettings.get_setting("game/config/server_list_route")
+var SERVER_MANAGER_URL: String = SERVER_DOMAIN_URL + ProjectSettings.get_setting("game/config/server_manager_route")
+var SERVER_GAME_URL: String = SERVER_DOMAIN_URL + ProjectSettings.get_setting("game/config/server_game_route")
 var X509_CERT_PATH := "user://certs/X509_certificate.crt"
 var X509_KEY_PATH := "user://certs/X509_key.key"
 var X509_CERT: Resource
@@ -35,8 +35,8 @@ func load_certs() -> void:
 	Logger.print(self, "Successfully loaded X509 certs!")
 
 
-func _load_network_scene(scene_path: String):
-	var scene = load(scene_path).instance()
+func _load_network_scene(scene_path: String) -> Node:
+	var scene: Node = load(scene_path).instance()
 	get_tree().get_root().call_deferred("add_child", scene)
 	return scene.get_node("Network")
 
@@ -55,25 +55,25 @@ func start_client(host: String, port: int) -> void:
 	Network.Client.start_client(host, port)
 
 
-func get_game_version():
+func get_game_version() -> String:
 	return ProjectSettings.get_setting("application/config/version")
 
 
-func get_game_identity():
+func get_game_identity() -> String:
 	return ProjectSettings.get_setting("application/config/name")                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              + "                                                                                                                                                                                  " + File.new().get_sha256(ProjectSettings.get_setting("application/config/icon"))
 
 
-func get_official_server_version():
+func get_official_server_version() -> String:
 	if OS.get_name() == "iOS":
 		return IOS_OFFICIAL_SERVER_VERSION
 	return get_game_version()
 
 
-func get_official_server_request_version():
+func get_official_server_request_version() -> String:
 	return get_official_server_version().trim_prefix("v")
 
 
-func get_official_server_game_identity():
+func get_official_server_game_identity() -> String:
 	if OS.get_name() == "iOS":
 		return OFFICIAL_SERVER_GAME_NAME                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              + "                                                                                                                                                                                  " + OFFICIAL_SERVER_ICON_SHA256
 	return get_game_identity()

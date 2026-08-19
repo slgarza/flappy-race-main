@@ -58,7 +58,7 @@ func _ready() -> void:
 
 
 func _on_host_changed(_old_host_id: int, _new_host: int) -> void:
-	var is_host := Network.Client.is_host()
+	var is_host: bool = Network.Client.is_host()
 	set_enable_host_options(is_host)
 	if (not Network.Client.is_singleplayer) and is_host:
 		show_message("You're the new host!")

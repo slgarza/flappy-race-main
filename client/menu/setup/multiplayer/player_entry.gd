@@ -39,8 +39,8 @@ func set_host(value: bool) -> void:
 	is_host = value
 	$HostIcon.visible = is_host
 	$ReadyIcon.visible = not is_host and not is_bot
-	var show_host_buttons := not is_host and Network.Client.is_host() and not is_bot
-	show_host_buttons(show_host_buttons)
+	var should_show_host_buttons: bool = not is_host and Network.Client.is_host() and not is_bot
+	show_host_buttons(should_show_host_buttons)
 
 
 func show_host_buttons(value: bool) -> void:
