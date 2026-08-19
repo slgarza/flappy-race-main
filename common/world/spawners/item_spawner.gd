@@ -8,7 +8,23 @@ export(bool) var change_into_item := true
 var spawned_item: Area2D
 
 func _ready() -> void:
+	# Arcade keeps the usual obstacle patterns but replaces every power-up box
+	# with a coin, including spawners that normally alternate after pickup.
+	if _is_arcade_world():
+		spawn_coin = true
+		change_into_item = false
 	respawn_item()
+
+
+func _is_arcade_world() -> bool:
+	var ancestor := get_parent()
+	while ancestor:
+		# Avoid referencing CommonWorld directly here. CommonWorld loads the level
+		# generator, which loads obstacles, which load this script.
+		if ancestor.has_method("set_game_options"):
+			return ancestor.game_options.get("arcade", false)
+		ancestor = ancestor.get_parent()
+	return false
 
 
 func _on_item_taken(_body: Node) -> void:

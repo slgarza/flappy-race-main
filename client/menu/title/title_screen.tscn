@@ -48,45 +48,46 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="SingleplayerButton" parent="Menu/Buttons" instance=ExtResource( 10 )]
+[node name="ArcadeButton" parent="Menu/Buttons" instance=ExtResource( 10 )]
 margin_right = 400.0
+grow_horizontal = 2
+label = "Arcade"
+alignment = 1
+
+[node name="SingleplayerButton" parent="Menu/Buttons" instance=ExtResource( 10 )]
+margin_top = 100.0
+margin_right = 400.0
+margin_bottom = 180.0
 grow_horizontal = 2
 label = "Singleplayer"
 alignment = 1
 
 [node name="MultiplayerButton" parent="Menu/Buttons" instance=ExtResource( 10 )]
-margin_top = 100.0
+margin_top = 200.0
 margin_right = 400.0
-margin_bottom = 180.0
+margin_bottom = 280.0
 label = "Multiplayer"
 alignment = 1
 
 [node name="OptionsButton" parent="Menu/Buttons" instance=ExtResource( 10 )]
-margin_top = 200.0
+margin_top = 300.0
 margin_right = 400.0
-margin_bottom = 280.0
+margin_bottom = 380.0
 label = "Options"
 alignment = 1
 
 [node name="CreditsButton" parent="Menu/Buttons" instance=ExtResource( 10 )]
-margin_top = 300.0
+margin_top = 400.0
 margin_right = 400.0
-margin_bottom = 380.0
+margin_bottom = 480.0
 label = "Credits"
 alignment = 1
 
 [node name="RemoveAdsButton" parent="Menu/Buttons" instance=ExtResource( 10 )]
-margin_top = 400.0
-margin_right = 400.0
-margin_bottom = 480.0
-label = "Remove Ads"
-alignment = 1
-
-[node name="QuitButton" parent="Menu/Buttons" instance=ExtResource( 10 )]
 margin_top = 500.0
 margin_right = 400.0
 margin_bottom = 580.0
-label = "Quit"
+label = "Remove Ads"
 alignment = 1
 
 [node name="VersionLabel" type="Label" parent="Menu"]
@@ -103,9 +104,9 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[connection signal="pressed" from="Menu/Buttons/ArcadeButton" to="." method="_on_ArcadeButton_pressed"]
 [connection signal="pressed" from="Menu/Buttons/SingleplayerButton" to="." method="_on_SingleplayerButton_pressed"]
 [connection signal="pressed" from="Menu/Buttons/MultiplayerButton" to="." method="_on_MultiplayerButton_pressed"]
 [connection signal="pressed" from="Menu/Buttons/OptionsButton" to="." method="_on_OptionsButton_pressed"]
 [connection signal="pressed" from="Menu/Buttons/CreditsButton" to="." method="_on_CreditsButton_pressed"]
 [connection signal="pressed" from="Menu/Buttons/RemoveAdsButton" to="." method="_on_RemoveAdsButton_pressed"]
-[connection signal="pressed" from="Menu/Buttons/QuitButton" to="." method="_on_QuitButton_pressed"]

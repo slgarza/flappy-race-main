@@ -28,11 +28,12 @@ func _ready() -> void:
 	_update_remove_ads_button()
 	MobileUI.adapt_title_screen(self)
 	if not MobileUI.is_mobile():
-		$Menu/Buttons/SingleplayerButton.grab_focus()
+		$Menu/Buttons/ArcadeButton.grab_focus()
 	var result := get_viewport().connect("size_changed", self, "spawn_title_players")
 	assert(result == OK)
 	spawn_title_players()
 	if OS.has_feature("web"):
+		$Menu/Buttons/ArcadeButton.hide()
 		$Menu/Buttons/SingleplayerButton.hide()
 
 
@@ -63,6 +64,12 @@ func spawn_title_players() -> void:
 		for i in players_to_despawn:
 			var player = spawned_title_players.pop_back()
 			player.remove_when_off_screen = true
+
+
+func _on_ArcadeButton_pressed() -> void:
+	$Menu/Buttons/ArcadeButton.disabled = true
+	_set_menu_button_label($Menu/Buttons/ArcadeButton, "Loading...")
+	Network.start_arcade()
 
 
 func _on_SingleplayerButton_pressed() -> void:
@@ -107,10 +114,6 @@ func _on_remove_ads_purchase_cancelled() -> void:
 	_update_remove_ads_button()
 
 
-func _on_QuitButton_pressed() -> void:
-	get_tree().notification(MainLoop.NOTIFICATION_WM_QUIT_REQUEST)
-
-
 func _update_remove_ads_button() -> void:
 	$Menu/Buttons/RemoveAdsButton.disabled = false
 	$Menu/Buttons/RemoveAdsButton.visible = Ads.is_remove_ads_available() and not Ads.are_ads_removed()
@@ -118,7 +121,10 @@ func _update_remove_ads_button() -> void:
 
 
 func _set_remove_ads_button_label(text: String) -> void:
-	var button = $Menu/Buttons/RemoveAdsButton
+	_set_menu_button_label($Menu/Buttons/RemoveAdsButton, text)
+
+
+func _set_menu_button_label(button, text: String) -> void:
 	button.label = text
 	if button.has_node("Label"):
 		button.get_node("Label").text = text

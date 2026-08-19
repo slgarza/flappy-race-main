@@ -80,7 +80,7 @@ func get_official_server_game_identity() -> String:
 	return get_game_identity()
 
 
-func start_singleplayer() -> void:
+func start_singleplayer(arcade: bool = false) -> void:
 	if _starting_embedded_server:
 		return
 	_starting_embedded_server = true
@@ -94,15 +94,21 @@ func start_singleplayer() -> void:
 
 	Server = _load_network_scene(SERVER_NETWORK)
 	yield(Server, "ready")
-	var started: bool = Server.start_server(RPC_PORT, 1, false, "", false, false, "", true)
+	var started: bool = Server.start_server(
+		RPC_PORT, 1, false, "", false, false, "", true, arcade
+	)
 	if not started:
 		_starting_embedded_server = false
 		_dispose_server_instance()
 		Client.change_scene_to_title_screen()
 		Globals.show_message("Unable to start the local game server.", "Local Server Error")
 		return
-	Client.start_client("ws://127.0.0.1", RPC_PORT, true)
+	Client.start_client("ws://127.0.0.1", RPC_PORT, true, "", arcade)
 	_starting_embedded_server = false
+
+
+func start_arcade() -> void:
+	start_singleplayer(true)
 
 
 func start_multiplayer_host(

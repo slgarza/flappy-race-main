@@ -10,8 +10,10 @@ const DEFAULT_GAME_OPTIONS := {
 	"bots": 8,
 	"difficulty": 2,
 	"items": true,
-	"item_ids_enabled": []
+	"item_ids_enabled": [],
+	"arcade": false
 }
+const ARCADE_GOAL := 999
 const PLAYER_TIMEOUT_TIME := 20
 const BOT_ID_OFFSET := 1000
 
@@ -34,6 +36,7 @@ var game_options := {}
 var server_version := ""
 var game_id := ""
 var embedded_server := false
+var arcade_server := false
 var _stopping := false
 
 
@@ -97,13 +100,15 @@ func start_server(
 	use_server_list: bool,
 	use_timeout: bool = false,
 	_game_id: String = "",
-	_embedded_server: bool = false
+	_embedded_server: bool = false,
+	_arcade_server: bool = false
 ) -> bool:
 	if OS.has_feature('web'):
 		push_error("Server hosting is not supported on browsers!")
 		return false
 	_stopping = false
 	embedded_server = _embedded_server
+	arcade_server = _arcade_server
 	port = server_port
 	use_tls = false
 	max_players = server_max_players
@@ -111,6 +116,11 @@ func start_server(
 	# DEFAULT_GAME_OPTIONS would accumulate entries each time an embedded server
 	# is destroyed and recreated.
 	game_options = DEFAULT_GAME_OPTIONS.duplicate(true)
+	if arcade_server:
+		game_options.goal = ARCADE_GOAL
+		game_options.bots = 0
+		game_options.items = true
+		game_options.arcade = true
 	for i in Items.items.size():
 		game_options.item_ids_enabled.append(true)
 	server_version = ProjectSettings.get_setting("application/config/version")
@@ -174,6 +184,7 @@ func stop_server() -> void:
 	port = 0
 	game_id = ""
 	embedded_server = false
+	arcade_server = false
 	$StateProcessing.running = false
 	if multiplayer.has_network_peer():
 		multiplayer.network_peer.stop()

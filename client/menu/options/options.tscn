@@ -309,7 +309,7 @@ margin_right = 120.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 120, 0 )
 theme = ExtResource( 2 )
-text = "High Score:"
+text = "Arcade High Score:"
 
 [node name="HighScore" type="Label" parent="CenterContainer/GridContainer/Gameplay/VBoxContainer/HBoxContainer"]
 margin_left = 124.0
@@ -324,7 +324,7 @@ margin_top = 34.0
 margin_right = 400.0
 margin_bottom = 61.0
 theme = ExtResource( 2 )
-text = "Reset High Score"
+text = "Reset Arcade High Score"
 
 [node name="RestorePurchasesButton" type="Button" parent="CenterContainer/GridContainer/Gameplay/VBoxContainer"]
 margin_top = 71.0

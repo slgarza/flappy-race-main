@@ -1,6 +1,7 @@
 extends CommonWorld
 
 const INTERPOLATION_OFFSET = 100
+const ARCADE_POINTS_PER_COIN := 10
 
 export(PackedScene) var Confetti
 
@@ -18,6 +19,8 @@ var current_player: CommonPlayer
 var spectate_target: Node
 var camera_target_id := -1
 var camera_starting_position := Vector2(-5000, 0)
+var arcade_scores := {}
+var arcade_coin_balances := {}
 
 
 func _ready() -> void:
@@ -233,6 +236,9 @@ func reset_game() -> void:
 
 func spawn_player(player_id: int, spawn_position: Vector2, _is_bot: bool) -> Node2D:
 	var player = .spawn_player(player_id, spawn_position, _is_bot)
+	if game_options.get("arcade", false):
+		arcade_scores[player_id] = 0
+		arcade_coin_balances[player_id] = 0
 	# Only needed on the client
 	player.connect("coins_changed", self, "_on_Player_coins_changed")
 	player.connect("got_item", self, "_on_Player_got_item")
@@ -304,13 +310,31 @@ func _on_Player_score_changed(player: CommonPlayer) -> void:
 	._on_Player_score_changed(player)
 	# Only update for the camera target
 	if int(player.name) == camera_target_id:
-		$UI.update_score(player.score)
+		if game_options.get("arcade", false):
+			$UI.update_score(arcade_scores.get(int(player.name), 0))
+		else:
+			$UI.update_score(player.score)
 
 
 func _on_Player_coins_changed(player: CommonPlayer) -> void:
+	var player_id := int(player.name)
+	if game_options.get("arcade", false):
+		var previous_balance: int = arcade_coin_balances.get(player_id, 0)
+		if player.coins > previous_balance:
+			arcade_scores[player_id] = (
+				arcade_scores.get(player_id, 0)
+				+ ((player.coins - previous_balance) * ARCADE_POINTS_PER_COIN)
+			)
+		arcade_coin_balances[player_id] = player.coins
+		if player_id == multiplayer.get_network_unique_id():
+			var new_score: int = arcade_scores.get(player_id, 0)
+			if new_score > Globals.high_score:
+				Globals.high_score = new_score
 	# Only update for the camera target
-	if int(player.name) == camera_target_id:
+	if player_id == camera_target_id:
 		$UI.update_coins(player.coins)
+		if game_options.get("arcade", false):
+			$UI.update_score(arcade_scores.get(player_id, 0))
 		$MainCamera.add_trauma(0.3)
 
 

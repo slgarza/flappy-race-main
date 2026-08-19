@@ -20,6 +20,8 @@ var decimal_collector: float = 0
 var latency_array = []
 
 var is_singleplayer := false
+var is_arcade := false
+var _arcade_start_requested := false
 var host_player_id := 0
 var player_list := {}
 var game_options := {}
@@ -90,9 +92,15 @@ func change_scene_to_world() -> void:
 
 
 func start_client(
-	host: String, port: int = -1, singleplayer: bool = false, version_override: String = ""
+	host: String,
+	port: int = -1,
+	singleplayer: bool = false,
+	version_override: String = "",
+	arcade: bool = false
 ) -> void:
 	is_singleplayer = singleplayer
+	is_arcade = arcade
+	_arcade_start_requested = false
 	server_version_override = version_override
 	# Must use the corresponding WebSocket protocol (non-secure or secure)
 	host = host.replace("http://", "ws://").replace("https://", "wss://")
@@ -117,6 +125,9 @@ func stop_client() -> void:
 	game_options.clear()
 	game_id = ""
 	server_version_override = ""
+	is_singleplayer = false
+	is_arcade = false
+	_arcade_start_requested = false
 	Logger.print(self, "Client stopped")
 
 
@@ -223,6 +234,11 @@ remote func receive_change_to_setup() -> void:
 	if is_rpc_from_server() == false:
 		return
 	Logger.print(self, "Received change scene to setup")
+	if is_arcade:
+		_arcade_start_requested = false
+		change_scene_to_title_screen(false)
+		call_deferred("_request_arcade_start")
+		return
 	change_scene_to_setup()
 	if not is_singleplayer:
 		Ads.maybe_show_interstitial()
@@ -244,6 +260,15 @@ remote func receive_game_info(
 	player_list = new_player_list
 	game_options = new_game_options
 	emit_signal("game_options_changed", new_game_options)
+	if is_arcade:
+		call_deferred("_request_arcade_start")
+
+
+func _request_arcade_start() -> void:
+	if not is_arcade or _arcade_start_requested or not is_server_connected():
+		return
+	_arcade_start_requested = true
+	send_start_game_request()
 
 remote func receive_late_join_info(game_seed: int, time: float) -> void:
 	if is_rpc_from_server() == false:
