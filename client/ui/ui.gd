@@ -201,21 +201,21 @@ func show_arcade_game_over(time: float, score: int, high_score: int) -> void:
 func _on_ArcadeNewRaceButton_pressed() -> void:
 	$Finished/ArcadeResult/Buttons/NewRaceButton.disabled = true
 	$Finished/ArcadeResult/Buttons/MainMenuButton.disabled = true
-	Network.call_deferred("restart_arcade")
+	Ads.run_after_maybe_interstitial(self, "_restart_arcade_from_game_over")
 
 
 func _restart_arcade_from_game_over() -> void:
-	Network.restart_arcade()
+	Network.call_deferred("restart_arcade")
 
 
 func _on_ArcadeMainMenuButton_pressed() -> void:
 	$Finished/ArcadeResult/Buttons/NewRaceButton.disabled = true
 	$Finished/ArcadeResult/Buttons/MainMenuButton.disabled = true
-	Network.call_deferred("return_to_title_screen_from_game")
+	Ads.run_after_maybe_interstitial(self, "_return_from_arcade_to_main_menu")
 
 
 func _return_from_arcade_to_main_menu() -> void:
-	Network.return_to_title_screen_from_game()
+	Network.call_deferred("return_to_title_screen_from_game")
 
 
 func show_leaderboard(player_list: Array) -> void:
