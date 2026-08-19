@@ -129,8 +129,9 @@ func update_player_ready(player_id: int, _is_ready: bool) -> void:
 
 
 func _on_BackButton_pressed() -> void:
+	var was_singleplayer: bool = Network.Client != null and Network.Client.is_singleplayer
 	Network.stop_networking()
-	if Network.Client.is_singleplayer:
+	if was_singleplayer:
 		change_menu(title_scene)
 	else:
 		change_menu(server_browser_scene)

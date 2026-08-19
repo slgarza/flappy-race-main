@@ -24,6 +24,7 @@ var item_slots := []
 
 func _ready() -> void:
 	MobileUI.adapt_hud(self)
+	_connect_arcade_result_buttons()
 	_set_pause_button_visible(false)
 	# Hide all UI elements by default
 	for child in get_children():
@@ -31,6 +32,50 @@ func _ready() -> void:
 			child.hide()
 	# Always show the message box
 	$MessageBox.show()
+
+
+func _input(event: InputEvent) -> void:
+	if not $Finished.visible or not $Finished/ArcadeResult.visible:
+		return
+	if _event_activates_arcade_button(event, $Finished/ArcadeResult/Buttons/NewRaceButton):
+		get_tree().set_input_as_handled()
+		_on_ArcadeNewRaceButton_pressed()
+	elif _event_activates_arcade_button(event, $Finished/ArcadeResult/Buttons/MainMenuButton):
+		get_tree().set_input_as_handled()
+		_on_ArcadeMainMenuButton_pressed()
+
+
+func _connect_arcade_result_buttons() -> void:
+	var new_race_button = $Finished/ArcadeResult/Buttons/NewRaceButton
+	var main_menu_button = $Finished/ArcadeResult/Buttons/MainMenuButton
+	_prepare_arcade_result_button(new_race_button)
+	_prepare_arcade_result_button(main_menu_button)
+	if not new_race_button.is_connected("pressed", self, "_on_ArcadeNewRaceButton_pressed"):
+		new_race_button.connect("pressed", self, "_on_ArcadeNewRaceButton_pressed")
+	if not main_menu_button.is_connected("pressed", self, "_on_ArcadeMainMenuButton_pressed"):
+		main_menu_button.connect("pressed", self, "_on_ArcadeMainMenuButton_pressed")
+
+
+func _prepare_arcade_result_button(button: Button) -> void:
+	button.pause_mode = Node.PAUSE_MODE_PROCESS
+	button.mouse_filter = Control.MOUSE_FILTER_STOP
+	button.focus_mode = Control.FOCUS_NONE if MobileUI.is_mobile() else Control.FOCUS_ALL
+
+
+func _event_activates_arcade_button(event: InputEvent, button: Button) -> bool:
+	if not button.visible or button.disabled:
+		return false
+	var pressed := false
+	var position := Vector2.ZERO
+	if event is InputEventScreenTouch:
+		pressed = event.pressed
+		position = event.position
+	elif event is InputEventMouseButton and event.button_index == BUTTON_LEFT:
+		pressed = event.pressed
+		position = event.position
+	else:
+		return false
+	return pressed and button.get_global_rect().has_point(position)
 
 
 func set_player_list(player_list: Dictionary) -> void:
@@ -139,28 +184,38 @@ func show_arcade_game_over(time: float, score: int, high_score: int) -> void:
 	$Finished/ArcadeResult/Time.set_time(time)
 	$Finished/ArcadeResult/Score.text = "Score: %d" % score
 	$Finished/ArcadeResult/HighScore.text = "High Score: %d" % high_score
+	$Finished/ArcadeResult/Buttons/NewRaceButton.disabled = false
+	$Finished/ArcadeResult/Buttons/MainMenuButton.disabled = false
 	$Finished/ArcadeResult.show()
 	$Finished.show()
+	$Finished.raise()
+	$Finished/ArcadeResult.raise()
+	$Finished/ArcadeResult/Buttons.raise()
+	$Finished/ArcadeResult/Buttons/NewRaceButton.raise()
+	$Finished/ArcadeResult/Buttons/MainMenuButton.raise()
 	MobileUI.adapt_arcade_game_over(self)
 	if not MobileUI.is_mobile():
 		$Finished/ArcadeResult/Buttons/NewRaceButton.grab_focus()
 
 
 func _on_ArcadeNewRaceButton_pressed() -> void:
-	Ads.run_after_maybe_interstitial(self, "_request_arcade_new_race_after_ad")
+	$Finished/ArcadeResult/Buttons/NewRaceButton.disabled = true
+	$Finished/ArcadeResult/Buttons/MainMenuButton.disabled = true
+	Network.call_deferred("restart_arcade")
 
 
-func _request_arcade_new_race_after_ad() -> void:
-	Network.Client.send_change_to_setup_request()
+func _restart_arcade_from_game_over() -> void:
+	Network.restart_arcade()
 
 
 func _on_ArcadeMainMenuButton_pressed() -> void:
-	Ads.run_after_maybe_interstitial(self, "_return_from_arcade_to_main_menu_after_ad")
+	$Finished/ArcadeResult/Buttons/NewRaceButton.disabled = true
+	$Finished/ArcadeResult/Buttons/MainMenuButton.disabled = true
+	Network.call_deferred("return_to_title_screen_from_game")
 
 
-func _return_from_arcade_to_main_menu_after_ad() -> void:
-	Network.stop_networking()
-	Network.Client.change_scene_to_title_screen()
+func _return_from_arcade_to_main_menu() -> void:
+	Network.return_to_title_screen_from_game()
 
 
 func show_leaderboard(player_list: Array) -> void:

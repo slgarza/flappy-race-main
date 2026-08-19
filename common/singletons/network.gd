@@ -111,6 +111,25 @@ func start_arcade() -> void:
 	start_singleplayer(true)
 
 
+func restart_arcade() -> void:
+	if _starting_embedded_server:
+		return
+	if Client and is_instance_valid(Client) and Client.is_arcade and Client.is_server_connected():
+		Client.send_change_to_setup_request()
+		return
+	stop_networking()
+	if Client and is_instance_valid(Client):
+		Client.change_scene_to_title_screen(false)
+	yield(get_tree(), "idle_frame")
+	start_arcade()
+
+
+func return_to_title_screen_from_game() -> void:
+	stop_networking()
+	if Client and is_instance_valid(Client):
+		Client.change_scene_to_title_screen()
+
+
 func start_multiplayer_host(
 	port: int, use_upnp: bool, server_name: String, use_server_list: bool, game_id: String = ""
 ) -> void:

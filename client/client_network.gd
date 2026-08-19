@@ -236,7 +236,6 @@ remote func receive_change_to_setup() -> void:
 	Logger.print(self, "Received change scene to setup")
 	if is_arcade:
 		_arcade_start_requested = false
-		change_scene_to_title_screen(false)
 		call_deferred("_request_arcade_start")
 		return
 	change_scene_to_setup()
